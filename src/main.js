@@ -5,7 +5,6 @@ import {createFiltersTemplate} from './view/filters.js';
 import {createTripSortTemplate} from './view/trip-sort.js';
 import {createEventListTemplate} from './view/event-list.js';
 import {createEventTemplate} from './view/event.js';
-import {createNewEventTemplate} from './view/new-event.js';
 import {createEditEventTemplate} from './view/edit-event.js';
 
 const Position = {
