@@ -6,12 +6,17 @@ import {createTripSortTemplate} from './view/trip-sort.js';
 import {createEventListTemplate} from './view/event-list.js';
 import {createEventTemplate} from './view/event.js';
 import {createEditEventTemplate} from './view/edit-event.js';
+import {generateDestinationInfo, generateEvent, generateOffers} from './mock/event.js';
 
 const Position = {
   BEFOREEND: 'beforeend',
   AFTERSTART: 'afterbegin',
 };
-const EVENT_COUNT = 3;
+const EVENT_COUNT = 15;
+
+export const offers = generateOffers();
+generateDestinationInfo();
+const events = new Array(EVENT_COUNT).fill().map(generateEvent);
 
 const render = (container, template, place = Position.BEFOREEND) => {
   container.insertAdjacentHTML(place, template);
@@ -37,6 +42,6 @@ render(eventsContainer, createEventListTemplate());
 const eventList = eventsContainer.querySelector('.trip-events__list');
 
 for (let i = 0; i < EVENT_COUNT; i++) {
-  i === 0 ? render(eventList, createEditEventTemplate())
-    : render(eventList, createEventTemplate());
+  i === 0 ? render(eventList, createEditEventTemplate(events[i], offers))
+    : render(eventList, createEventTemplate(events[i]));
 }
