@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import {cities} from '../mock/event.js';
+import {CITIES} from '../mock/event.js';
 
 const createEditOffersTemplate = (allOffers, checkedOffers) => {
   const checkedTitles = checkedOffers.map((offer) => offer.title);
@@ -120,7 +120,7 @@ export const createEditEventTemplate = (event, allOffers) => {
                     </label>
                     <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination}" list="destination-list-1">
                     <datalist id="destination-list-1">
-                    ${cities.map((city) => `<option value="${city}"></option>`).join('')}
+                    ${CITIES.map((city) => `<option value="${city}"></option>`).join('')}
                     </datalist>
                   </div>
 

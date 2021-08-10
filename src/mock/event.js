@@ -7,24 +7,24 @@ const getRandomInteger = (a = 0, b = 1) => {
   return Math.floor(lower + Math.random() * (upper - lower + 1));
 };
 
-const types = ['taxi', 'bus', 'train', 'ship', 'drive', 'flight', 'check-in', 'sightseeing', 'restaurant'];
-export const cities = ['Amsterdam', 'Chamonix','Geneva'];
-const offerTitles = ['Switch to comfort class', 'Add luggage', 'Add meal', 'Choose seats', 'Travel by train'];
-const offerPrices = ['100', '5', '30', '15', '40'];
-const descriptions = ['Lorem ipsum dolor sit amet, consectetur adipiscing elit.', 'In rutrum ac purus sit amet tempus.', 'Sed sed nisi sed augue convallis suscipit in sed felis. Aliquam erat volutpat.'];
+const TYPES = ['taxi', 'bus', 'train', 'ship', 'drive', 'flight', 'check-in', 'sightseeing', 'restaurant'];
+export const CITIES = ['Amsterdam', 'Chamonix','Geneva'];
+const OFFER_TITLES = ['Switch to comfort class', 'Add luggage', 'Add meal', 'Choose seats', 'Travel by train'];
+const OFFER_PRICES = ['100', '5', '30', '15', '40'];
+const DESCRIPTIONS = ['Lorem ipsum dolor sit amet, consectetur adipiscing elit.', 'In rutrum ac purus sit amet tempus.', 'Sed sed nisi sed augue convallis suscipit in sed felis. Aliquam erat volutpat.'];
 
 const offer = new Map();
 const destinationInfo = new Map();
 
 const generateOption = () => (
   {
-    price: offerPrices[getRandomInteger(0, offerPrices.length - 1)],
-    title: offerTitles[getRandomInteger(0, offerTitles.length - 1)],
+    price: OFFER_PRICES[getRandomInteger(0, OFFER_PRICES.length - 1)],
+    title: OFFER_TITLES[getRandomInteger(0, OFFER_TITLES.length - 1)],
   }
 );
 
 export const generateOffers = () => {
-  for (const type of types) {
+  for (const type of TYPES) {
     const options = new Array(getRandomInteger(0, 5)).fill().map(generateOption);
 
     offer.set(type, options);
@@ -33,13 +33,13 @@ export const generateOffers = () => {
 };
 
 export const generateDestinationInfo = () => {
-  for (const city of cities) {
+  for (const city of CITIES) {
     destinationInfo.set(city, {
-      description: descriptions[getRandomInteger(0, descriptions.length - 1)],
+      description: DESCRIPTIONS[getRandomInteger(0, DESCRIPTIONS.length - 1)],
       photos: [
         {
           src: `http://picsum.photos/248/152?r=${Math.random()}`,
-          altText: descriptions[getRandomInteger(0, descriptions.length - 1)],
+          altText: DESCRIPTIONS[getRandomInteger(0, DESCRIPTIONS.length - 1)],
         },
       ],
     });
@@ -56,8 +56,8 @@ const generateDateTo = (start) => (
 );
 
 export const generateEvent = () => {
-  const type = types[getRandomInteger(0, types.length - 1)];
-  const destination = cities[getRandomInteger(0, cities.length - 1)];
+  const type = TYPES[getRandomInteger(0, TYPES.length - 1)];
+  const destination = CITIES[getRandomInteger(0, CITIES.length - 1)];
   const dateFrom = generateDateFrom();
   return {
     basePrice: getRandomInteger(10, 1500),

@@ -42,6 +42,9 @@ render(eventsContainer, createEventListTemplate());
 const eventList = eventsContainer.querySelector('.trip-events__list');
 
 for (let i = 0; i < EVENT_COUNT; i++) {
-  i === 0 ? render(eventList, createEditEventTemplate(events[i], offers))
-    : render(eventList, createEventTemplate(events[i]));
+  if (i === 0) {
+    render(eventList, createEditEventTemplate(events[i], offers));
+  } else {
+    render(eventList, createEventTemplate(events[i]));
+  }
 }
