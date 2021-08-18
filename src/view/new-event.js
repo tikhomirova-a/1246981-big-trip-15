@@ -1,6 +1,7 @@
+import {createElement} from '../utils.js';
 import {TYPES} from '../mock/event.js';
 
-export const createNewEventTemplate = () => {
+const createNewEventTemplate = () => {
   const type = TYPES[0];
   return `<li class="trip-events__item">
               <form class="event event--edit" action="#" method="post">
@@ -170,3 +171,24 @@ export const createNewEventTemplate = () => {
               </form>
             </li>`;
 };
+
+export default class NewEvent {
+  constructor() {
+    this._element = null;
+  }
+
+  getTemplate() {
+    return createNewEventTemplate();
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}

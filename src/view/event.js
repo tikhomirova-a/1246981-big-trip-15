@@ -1,3 +1,4 @@
+import {createElement} from '../utils.js';
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration.js';
 dayjs.extend(duration);
@@ -39,7 +40,7 @@ const createOffersTemplate = (offers) => {
   return `<ul class="event__selected-offers">${offerItems.join('')}</ul>`;
 };
 
-export const createEventTemplate = (event) => {
+const createEventTemplate = (event) => {
   const {basePrice, dateFrom, dateTo, destination, isFavorite, offers, type} = event;
   const startDate = dayjs(dateFrom).format('YYYY-MM-DDTHH:mm');
   const endDate = dayjs(dateTo).format('YYYY-MM-DDTHH:mm');
@@ -78,3 +79,25 @@ export const createEventTemplate = (event) => {
               </div>
             </li>`;
 };
+
+export default class Event {
+  constructor(event) {
+    this._event = event;
+    this._element = null;
+  }
+
+  getTemplate() {
+    return createEventTemplate(this._event);
+  }
+
+  getElement() {
+    if(!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}

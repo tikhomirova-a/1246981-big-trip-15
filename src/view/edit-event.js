@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
 import {CITIES} from '../mock/event.js';
+import {createElement} from '../utils.js';
 
 const createEditOffersTemplate = (allOffers, checkedOffers) => {
   const checkedTitles = checkedOffers.map((offer) => offer.title);
@@ -34,7 +35,7 @@ const createDescriptionTemplate = (description) => (
                   </section>`
 );
 
-export const createEditEventTemplate = (event, allOffers) => {
+const createEditEventTemplate = (event, allOffers) => {
   const {
     basePrice,
     dateFrom,
@@ -154,3 +155,26 @@ export const createEditEventTemplate = (event, allOffers) => {
               </form>
             </li>`;
 };
+
+export default class EditEvent {
+  constructor(event, allOffers) {
+    this._event = event;
+    this._allOffers = allOffers;
+    this._element = null;
+  }
+
+  getTemplate() {
+    return createEditEventTemplate(this._event, this._allOffers);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}
