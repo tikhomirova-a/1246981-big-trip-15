@@ -6,6 +6,7 @@ import TripSortView from './view/trip-sort.js';
 import EventListView from './view/event-list.js';
 import EventView from './view/event.js';
 import EditEventView from './view/edit-event.js';
+import NoEventMsgView from './view/no-event-msg.js';
 import {generateDestinationInfo, generateEvent, generateOffers} from './mock/event.js';
 import {Position, Key, render} from './utils.js';
 
@@ -72,11 +73,16 @@ const tripInfo = tripMain.querySelector('.trip-info');
 render(tripInfo, new TripCostView().getElement());
 render(tripNav, new SiteMenuView().getElement());
 render(tripFiltersContainer, new FiltersView().getElement());
-render(eventsContainer, new TripSortView().getElement());
 
-const eventListComponent = new EventListView();
-render(eventsContainer, eventListComponent.getElement());
+if (events.length === 0) {
+  render(eventsContainer, new NoEventMsgView().getElement());
+} else {
+  render(eventsContainer, new TripSortView().getElement());
 
-for (let i = 0; i < EVENT_COUNT; i++) {
-  renderEvent(eventListComponent.getElement(), events[i], offers);
+  const eventListComponent = new EventListView();
+  render(eventsContainer, eventListComponent.getElement());
+
+  for (let i = 0; i < EVENT_COUNT; i++) {
+    renderEvent(eventListComponent.getElement(), events[i], offers);
+  }
 }
