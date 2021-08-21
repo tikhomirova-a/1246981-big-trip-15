@@ -1,31 +1,6 @@
-import {createElement} from '../utils.js';
+import AbstractView from './abstract.js';
 import dayjs from 'dayjs';
-import duration from 'dayjs/plugin/duration.js';
-dayjs.extend(duration);
-
-const getDuration = (start, end) => {
-  const dateDifference = dayjs(end).diff(dayjs(start));
-  const durationTime = dayjs.duration(dateDifference);
-  let durationDays;
-  let durationHours;
-  let durationMinutes;
-  if (durationTime.minutes() === 0) {
-    durationMinutes = '';
-  } else {
-    durationMinutes = durationTime.minutes() < 10 ? `0${durationTime.minutes()}M ` : `${durationTime.minutes()}M `;
-  }
-  if (durationTime.days() === 0) {
-    durationDays = '';
-  } else {
-    durationDays = durationTime.days() < 10 ? `0${durationTime.days()}D ` : `${durationTime.days()}D `;
-  }
-  if (durationTime.hours() === 0) {
-    durationHours = durationDays === '' ? '' : 'OOH ';
-  } else {
-    durationHours = durationTime.hours() < 10 ? `0${durationTime.hours()}H ` : `${durationTime.hours()}H `;
-  }
-  return `${durationDays + durationHours + durationMinutes}`;
-};
+import {getDuration} from '../utils/event.js';
 
 const createOffersTemplate = (offers) => {
   const offerItems = [];
@@ -80,24 +55,23 @@ const createEventTemplate = (event) => {
             </li>`;
 };
 
-export default class Event {
+export default class Event extends AbstractView {
   constructor(event) {
+    super();
     this._event = event;
-    this._element = null;
+    this._rollUpBtnClickHandler = this._rollUpBtnClickHandler.bind(this);
   }
 
   getTemplate() {
     return createEventTemplate(this._event);
   }
 
-  getElement() {
-    if(!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-    return this._element;
+  _rollUpBtnClickHandler() {
+    this._callback.rollUpClick();
   }
 
-  removeElement() {
-    this._element = null;
+  setRollUpBtnClickHandler(cb) {
+    this._callback.rollUpClick = cb;
+    this.getElement().querySelector('.event__rollup-btn').addEventListener('click', this._rollUpBtnClickHandler);
   }
 }

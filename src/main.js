@@ -8,7 +8,8 @@ import EventView from './view/event.js';
 import EditEventView from './view/edit-event.js';
 import NoEventMsgView from './view/no-event-msg.js';
 import {generateDestinationInfo, generateEvent, generateOffers} from './mock/event.js';
-import {Position, Key, render} from './utils.js';
+import {Key, Position} from './utils/const.js';
+import {render, replace} from './utils/render.js';
 
 const EVENT_COUNT = 15;
 
@@ -21,7 +22,7 @@ const renderEvent = (eventList, event, allOffers) => {
   const editEventComponent = new EditEventView(event, allOffers);
 
   const replaceEventToForm = () => {
-    eventList.replaceChild(editEventComponent.getElement(), eventComponent.getElement());
+    replace(editEventComponent, eventComponent);
   };
 
   const onEscKeydown = (evt) => {
@@ -31,8 +32,8 @@ const renderEvent = (eventList, event, allOffers) => {
     }
   };
 
-  function replaceFormToEvent() {
-    eventList.replaceChild(eventComponent.getElement(), editEventComponent.getElement());
+  function replaceFormToEvent() { // объявлять всё функции единообразно как стрелочные
+    replace(eventComponent, editEventComponent);
     window.removeEventListener('keydown', onEscKeydown);
   }
 
@@ -41,8 +42,7 @@ const renderEvent = (eventList, event, allOffers) => {
     window.addEventListener('keydown', onEscKeydown);
   };
 
-  const onEditFormSubmit = (evt) => {
-    evt.preventDefault();
+  const onEditFormSubmit = () => {
     replaceFormToEvent();
   };
 
@@ -50,11 +50,11 @@ const renderEvent = (eventList, event, allOffers) => {
     replaceFormToEvent();
   };
 
-  eventComponent.getElement().querySelector('.event__rollup-btn').addEventListener('click', onRollUpBtnClick);
-  editEventComponent.getElement().querySelector('form').addEventListener('submit', onEditFormSubmit);
-  editEventComponent.getElement().querySelector('.event__rollup-btn').addEventListener('click', onHideFormBtnClick);
+  eventComponent.setRollUpBtnClickHandler(onRollUpBtnClick);
+  editEventComponent.setFormSubmitHandler(onEditFormSubmit);
+  editEventComponent.setHideFormBtnClickHandler(onHideFormBtnClick);
 
-  render(eventList, eventComponent.getElement());
+  render(eventList, eventComponent);
 };
 
 const pageHeader = document.querySelector('.page-header');
@@ -64,23 +64,23 @@ const tripFiltersContainer = tripMain.querySelector('.trip-controls__filters');
 const pageMain = document.querySelector('.page-main');
 const eventsContainer = pageMain.querySelector('.trip-events');
 
-render(tripMain, new TripInfoView().getElement(), Position.AFTERBEGIN);
+render(tripMain, new TripInfoView(), Position.AFTERBEGIN);
 
 const tripInfo = tripMain.querySelector('.trip-info');
 
-render(tripInfo, new TripCostView().getElement());
-render(tripNav, new SiteMenuView().getElement());
-render(tripFiltersContainer, new FiltersView().getElement());
+render(tripInfo, new TripCostView());
+render(tripNav, new SiteMenuView());
+render(tripFiltersContainer, new FiltersView());
 
 if (events.length === 0) {
-  render(eventsContainer, new NoEventMsgView().getElement());
+  render(eventsContainer, new NoEventMsgView());
 } else {
-  render(eventsContainer, new TripSortView().getElement());
+  render(eventsContainer, new TripSortView());
 
   const eventListComponent = new EventListView();
-  render(eventsContainer, eventListComponent.getElement());
+  render(eventsContainer, eventListComponent);
 
   for (let i = 0; i < EVENT_COUNT; i++) {
-    renderEvent(eventListComponent.getElement(), events[i], offers);
+    renderEvent(eventListComponent, events[i], offers);
   }
 }

@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import {CITIES} from '../mock/event.js';
-import {createElement} from '../utils.js';
+import AbstractView from './abstract.js';
 
 const createEditOffersTemplate = (allOffers, checkedOffers) => {
   const checkedTitles = checkedOffers.map((offer) => offer.title);
@@ -156,25 +156,35 @@ const createEditEventTemplate = (event, allOffers) => {
             </li>`;
 };
 
-export default class EditEvent {
+export default class EditEvent extends AbstractView {
   constructor(event, allOffers) {
+    super();
     this._event = event;
     this._allOffers = allOffers;
-    this._element = null;
+    this._formSubmitHandler = this._formSubmitHandler.bind(this);
+    this._hideFormBtnClickHandler = this._hideFormBtnClickHandler.bind(this);
   }
 
   getTemplate() {
     return createEditEventTemplate(this._event, this._allOffers);
   }
 
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-    return this._element;
+  _formSubmitHandler(evt) {
+    evt.preventDefault();
+    this._callback.formSubmit();
   }
 
-  removeElement() {
-    this._element = null;
+  _hideFormBtnClickHandler() {
+    this._callback.hideBtnClick();
+  }
+
+  setFormSubmitHandler(cb) {
+    this._callback.formSubmit = cb;
+    this.getElement().querySelector('form').addEventListener('submit', this._formSubmitHandler);
+  }
+
+  setHideFormBtnClickHandler(cb) {
+    this._callback.hideBtnClick = cb;
+    this.getElement().querySelector('.event__rollup-btn').addEventListener('click', this._hideFormBtnClickHandler);
   }
 }

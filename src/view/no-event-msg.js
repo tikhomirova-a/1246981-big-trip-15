@@ -1,4 +1,5 @@
-import {createElement, Filter} from '../utils.js';
+import AbstractView from './abstract.js';
+import {Filter} from '../utils/const.js';
 
 const createNoEventMsgTemplate = (filter = Filter.EVERYTHING) => {
   let message;
@@ -15,24 +16,13 @@ const createNoEventMsgTemplate = (filter = Filter.EVERYTHING) => {
   return `<p class="trip-events__msg">${message}</p>`;
 };
 
-export default class NoEventMsg {
+export default class NoEventMsg extends AbstractView {
   constructor(filter) {
-    this._element = null;
+    super();
     this._filter = filter;
   }
 
   getTemplate() {
     return createNoEventMsgTemplate(this._filter);
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }

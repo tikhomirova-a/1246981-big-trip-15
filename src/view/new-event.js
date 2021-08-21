@@ -1,4 +1,4 @@
-import {createElement} from '../utils.js';
+import AbstractView from './abstract.js';
 import {TYPES} from '../mock/event.js';
 
 const createNewEventTemplate = () => {
@@ -172,23 +172,8 @@ const createNewEventTemplate = () => {
             </li>`;
 };
 
-export default class NewEvent {
-  constructor() {
-    this._element = null;
-  }
-
+export default class NewEvent extends AbstractView {
   getTemplate() {
     return createNewEventTemplate();
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }
