@@ -24,17 +24,17 @@ const renderEvent = (eventList, event, allOffers) => {
     eventList.replaceChild(editEventComponent.getElement(), eventComponent.getElement());
   };
 
-  const replaceFormToEvent = () => {
-    eventList.replaceChild(eventComponent.getElement(), editEventComponent.getElement());
-  };
-
   const onEscKeydown = (evt) => {
     if (evt.key === Key.ESC || evt.key === Key.ESCAPE) {
       evt.preventDefault();
       replaceFormToEvent();
-      window.removeEventListener('keydown', onEscKeydown);
     }
   };
+
+  function replaceFormToEvent() {
+    eventList.replaceChild(eventComponent.getElement(), editEventComponent.getElement());
+    window.removeEventListener('keydown', onEscKeydown);
+  }
 
   const onRollUpBtnClick = () => {
     replaceEventToForm();
@@ -44,12 +44,10 @@ const renderEvent = (eventList, event, allOffers) => {
   const onEditFormSubmit = (evt) => {
     evt.preventDefault();
     replaceFormToEvent();
-    window.removeEventListener('keydown', onEscKeydown);
   };
 
   const onHideFormBtnClick = () => {
     replaceFormToEvent();
-    window.removeEventListener('keydown', onEscKeydown);
   };
 
   eventComponent.getElement().querySelector('.event__rollup-btn').addEventListener('click', onRollUpBtnClick);

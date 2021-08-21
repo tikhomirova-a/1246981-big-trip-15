@@ -1,13 +1,16 @@
-import {createElement} from '../utils.js';
+import {createElement, Filter} from '../utils.js';
 
-const createNoEventMsgTemplate = (filter = 'everything') => {
+const createNoEventMsgTemplate = (filter = Filter.EVERYTHING) => {
   let message;
-  if (filter === 'past') {
-    message = 'There are no past events now';
-  } else if (filter === 'future') {
-    message = 'There are no future events now';
-  } else {
-    message = 'Click New Event to create your first point';
+  switch (filter) {
+    case Filter.PAST:
+      message = 'There are no past events now';
+      break;
+    case Filter.FUTURE:
+      message = 'There are no future events now';
+      break;
+    default:
+      message = 'Click New Event to create your first point';
   }
   return `<p class="trip-events__msg">${message}</p>`;
 };

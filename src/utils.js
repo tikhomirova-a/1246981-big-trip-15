@@ -8,6 +8,12 @@ export const Key = {
   ESCAPE: 'Escape',
 };
 
+export const Filter = {
+  PAST: 'past',
+  FUTURE: 'future',
+  EVERYTHING: 'everything',
+};
+
 export const render = (container, element, place = Position.BEFOREEND) => {
   switch (place) {
     case Position.BEFOREEND:
