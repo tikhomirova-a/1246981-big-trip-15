@@ -7,7 +7,7 @@ import EventListView from './view/event-list.js';
 import EventView from './view/event.js';
 import EditEventView from './view/edit-event.js';
 import {generateDestinationInfo, generateEvent, generateOffers} from './mock/event.js';
-import {Position, render} from './utils.js';
+import {Position, Key, render} from './utils.js';
 
 const EVENT_COUNT = 15;
 
@@ -19,16 +19,41 @@ const renderEvent = (eventList, event, allOffers) => {
   const eventComponent = new EventView(event);
   const editEventComponent = new EditEventView(event, allOffers);
 
-  const onRollUpBtnClick = () => {
+  const replaceEventToForm = () => {
     eventList.replaceChild(editEventComponent.getElement(), eventComponent.getElement());
   };
 
-  const onEditFormSubmit = () => {
+  const replaceFormToEvent = () => {
     eventList.replaceChild(eventComponent.getElement(), editEventComponent.getElement());
+  };
+
+  const onEscKeydown = (evt) => {
+    if (evt.key === Key.ESC || evt.key === Key.ESCAPE) {
+      evt.preventDefault();
+      replaceFormToEvent();
+      window.removeEventListener('keydown', onEscKeydown);
+    }
+  };
+
+  const onRollUpBtnClick = () => {
+    replaceEventToForm();
+    window.addEventListener('keydown', onEscKeydown);
+  };
+
+  const onEditFormSubmit = (evt) => {
+    evt.preventDefault();
+    replaceFormToEvent();
+    window.removeEventListener('keydown', onEscKeydown);
+  };
+
+  const onHideFormBtnClick = () => {
+    replaceFormToEvent();
+    window.removeEventListener('keydown', onEscKeydown);
   };
 
   eventComponent.getElement().querySelector('.event__rollup-btn').addEventListener('click', onRollUpBtnClick);
   editEventComponent.getElement().querySelector('form').addEventListener('submit', onEditFormSubmit);
+  editEventComponent.getElement().querySelector('.event__rollup-btn').addEventListener('click', onHideFormBtnClick);
 
   render(eventList, eventComponent.getElement());
 };

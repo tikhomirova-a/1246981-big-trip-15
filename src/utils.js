@@ -3,6 +3,11 @@ export const Position = {
   AFTERBEGIN: 'afterbegin',
 };
 
+export const Key = {
+  ESC: 'Esc',
+  ESCAPE: 'Escape',
+};
+
 export const render = (container, element, place = Position.BEFOREEND) => {
   switch (place) {
     case Position.BEFOREEND:
