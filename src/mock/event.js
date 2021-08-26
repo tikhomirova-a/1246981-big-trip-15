@@ -1,4 +1,5 @@
 import dayjs from 'dayjs';
+import {nanoid} from 'nanoid';
 
 const getRandomInteger = (a = 0, b = 1) => {
   const lower = Math.ceil(Math.min(a, b));
@@ -65,6 +66,7 @@ export const generateEvent = () => {
     dateTo: generateDateTo(dateFrom),
     description: destinationInfo.get(destination).description,
     destination: destination,
+    id: nanoid(),
     isFavorite: Boolean(getRandomInteger(0, 1)),
     offers: offer.get(type),
     photos: destinationInfo.get(destination).photos,
