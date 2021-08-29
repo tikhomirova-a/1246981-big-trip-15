@@ -71,8 +71,7 @@ export default class Event extends AbstractView {
     this._callback.rollUpClick();
   }
 
-  _favoriteBtnClickHandler(evt) {
-    evt.currentTarget.classList.toggle('event__favorite-btn--active');
+  _favoriteBtnClickHandler() {
     this._callback.favoriteBtnClick();
   }
 
