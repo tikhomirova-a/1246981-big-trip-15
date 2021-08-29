@@ -13,3 +13,9 @@ export const Filter = {
   FUTURE: 'future',
   EVERYTHING: 'everything',
 };
+
+export const SortType = {
+  DAY: 'sort-day',
+  TIME: 'sort-time',
+  PRICE: 'sort-price',
+};

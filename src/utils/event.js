@@ -32,3 +32,13 @@ export const updateItem = (items, update) => {
     ...items.slice(index + 1),
   ];
 };
+
+export const sortByDay = (eventA, eventB) => (dayjs(eventA.dateFrom).diff(dayjs(eventB.dateFrom)));
+
+export const sortByPrice = (eventA, eventB) => (eventB.basePrice - eventA.basePrice);
+
+export const sortByTime = (eventA, eventB) => {
+  const diffA = dayjs(eventA.dateTo).diff(dayjs(eventA.dateFrom));
+  const diffB = dayjs(eventB.dateTo).diff(dayjs(eventB.dateFrom));
+  return diffB - diffA;
+};

@@ -1,6 +1,6 @@
 import {render} from '../utils/render.js';
-import {updateItem} from '../utils/event.js';
-import {Position} from '../utils/const.js';
+import {updateItem, sortByDay, sortByPrice, sortByTime} from '../utils/event.js';
+import {Position, SortType} from '../utils/const.js';
 import TripInfoView from '../view/trip-info.js';
 import TripCostView from '../view/trip-cost.js';
 import SiteMenuView from '../view/site-menu.js';
@@ -20,6 +20,7 @@ export default class Trip {
     this._filtersContainer = this._tripMain.querySelector('.trip-controls__filters');
     this._eventsContainer = eventsContainer;
     this._eventPresenter = new Map();
+    this._currentSortType = SortType.DAY;
 
     this._TripInfoComponent = new TripInfoView();
     this._tripCostComponent = new TripCostView();
@@ -31,6 +32,7 @@ export default class Trip {
 
     this._handleEventChange = this._handleEventChange.bind(this);
     this._handleModeChange = this._handleModeChange.bind(this);
+    this._handleSortChange = this._handleSortChange.bind(this);
   }
 
   init(events, offers) {
@@ -73,12 +75,43 @@ export default class Trip {
     render(this._eventsContainer, this._noEventComponent);
   }
 
+  _sortEvents(sortType) {
+    switch (sortType) {
+      case SortType.DAY:
+        this._events.sort(sortByDay);
+        break;
+      case SortType.PRICE:
+        this._events.sort(sortByPrice);
+        break;
+      case SortType.TIME:
+        this._events.sort(sortByTime);
+        break;
+    }
+
+    this._currentSortType = sortType;
+  }
+
+  _handleSortChange(sortType) {
+    if (this._currentSortType === sortType) {
+      return;
+    }
+    this._sortEvents(sortType);
+    this._clearEventList();
+    this._renderEvents(this._eventListComponent, this._events, this._offers, this._handleEventChange, this._handleModeChange);
+  }
+
   _renderSort() {
     render(this._eventsContainer, this._sortComponent);
+    this._sortComponent.setFormChangeHandler(this._handleSortChange);
   }
 
   _renderEventList() {
     render(this._eventsContainer, this._eventListComponent);
+  }
+
+  _clearEventList() {
+    this._eventPresenter.forEach((presenter) => presenter.destroy());
+    this._eventPresenter.clear();
   }
 
   _renderEvents(eventList, events, offers, changeData, changeMode) {
@@ -100,6 +133,7 @@ export default class Trip {
     }
     this._renderSort();
     this._renderEventList();
+    this._sortEvents(SortType.DAY);
     this._renderEvents(this._eventListComponent, this._events, this._offers, this._handleEventChange, this._handleModeChange);
   }
 }
