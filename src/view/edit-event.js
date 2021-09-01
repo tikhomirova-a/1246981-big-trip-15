@@ -31,19 +31,27 @@ const createEditOffersTemplate = (allOffers, checkedOffers = []) => {
   </section>` : '';
 };
 
-const createDescriptionTemplate = (description) => (
-  `<section class="event__section  event__section--destination">
+const createDescriptionTemplate = (description, photos) => {
+  const photoItems = [];
+  for (const photo of photos) {
+    photoItems.push(`<img class="event__photo" src="${photo.src}" alt="${photo.altText}">`);
+  }
+  return `<section class="event__section  event__section--destination">
                     <h3 class="event__section-title  event__section-title--destination">Destination</h3>
                     <p class="event__destination-description">${description}</p>
-                  </section>`
-);
+                    <div class="event__photos-container">
+                      <div class="event__photos-tape">
+                      ${photoItems.join('')}
+                      </div>
+                    </div>
+                  </section>`;
+};
 
-const createEditEventTemplate = (data, allOffers) => {
+const createEditEventTemplate = (data, allOffers, descriptions) => {
   const {
     basePrice,
     dateFrom,
     dateTo,
-    description,
     destination,
     offers,
     type,
@@ -51,7 +59,7 @@ const createEditEventTemplate = (data, allOffers) => {
   } = data;
 
   const editOffersTemplate = createEditOffersTemplate(allOffers.get(type), offers);
-  const descriptionTemplate = hasDescription ? createDescriptionTemplate(description) : '';
+  const descriptionTemplate = hasDescription ? createDescriptionTemplate(descriptions.get(destination).description, descriptions.get(destination).photos) : '';
   return `<li class="trip-events__item">
               <form class="event event--edit" action="#" method="post">
                 <header class="event__header">
@@ -156,10 +164,11 @@ const createEditEventTemplate = (data, allOffers) => {
 };
 
 export default class EditEvent extends AbstractView {
-  constructor(event, allOffers) {
+  constructor(event, allOffers, descriptions) {
     super();
     this._data = EditEvent.parseEventToData(event);
     this._allOffers = allOffers;
+    this._descriptions = descriptions;
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
     this._hideFormBtnClickHandler = this._hideFormBtnClickHandler.bind(this);
     this._formChangeHandler = this._formChangeHandler.bind(this);
@@ -169,12 +178,12 @@ export default class EditEvent extends AbstractView {
   }
 
   getTemplate() {
-    return createEditEventTemplate(this._data, this._allOffers);
+    return createEditEventTemplate(this._data, this._allOffers, this._descriptions);
   }
 
   _formSubmitHandler(evt) {
     evt.preventDefault();
-    this._callback.formSubmit(EditEvent.parseDataToEvent(this._data));
+    this._callback.formSubmit(EditEvent.parseDataToEvent(this._data, this._descriptions.get(this._data.destination)));
   }
 
   _hideFormBtnClickHandler() {
@@ -192,7 +201,7 @@ export default class EditEvent extends AbstractView {
 
       this.updateData({
         destination: evt.target.value,
-      }, true);
+      });
 
     }
     else if (evt.target.classList.contains('event__offer-checkbox')) {
@@ -212,8 +221,6 @@ export default class EditEvent extends AbstractView {
       this.updateData({
         offers: newOffers,
       });
-
-      console.log(this._data.offers);
     }
   }
 
@@ -233,22 +240,18 @@ export default class EditEvent extends AbstractView {
     this.getElement().querySelector('.event__rollup-btn').addEventListener('click', this._hideFormBtnClickHandler);
   }
 
-  static parseEventToData(event) {
+  static parseEventToData(event, descriptions) {
     return Object.assign(
       {},
       event,
       {
-        hasDescription: event.description !== null,
+        hasDescription: descriptions !== null,
       },
     );
   }
 
   static parseDataToEvent(data) {
     data = Object.assign({}, data);
-
-    if (!data.description) {
-      data.description = null;
-    }
 
     delete data.hasDescription;
 

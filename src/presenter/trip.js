@@ -35,9 +35,10 @@ export default class Trip {
     this._handleSortChange = this._handleSortChange.bind(this);
   }
 
-  init(events, offers) {
+  init(events, offers, descriptions) {
     this._events = events.slice();
     this._offers = offers;
+    this._descriptions = descriptions;
     this._renderTrip();
   }
 
@@ -114,9 +115,9 @@ export default class Trip {
     this._eventPresenter.clear();
   }
 
-  _renderEvents(eventList, events, offers, changeData, changeMode) {
+  _renderEvents(eventList, events, offers, descriptions, changeData, changeMode) {
     for (let i = 0; i < this._eventCount; i++) {
-      const eventPresenter = new EventPresenter(eventList, offers, changeData, changeMode);
+      const eventPresenter = new EventPresenter(eventList, offers, descriptions, changeData, changeMode);
       eventPresenter.init(events[i]);
       this._eventPresenter.set(events[i].id, eventPresenter);
     }
@@ -134,6 +135,6 @@ export default class Trip {
     this._renderSort();
     this._renderEventList();
     this._sortEvents(SortType.DAY);
-    this._renderEvents(this._eventListComponent, this._events, this._offers, this._handleEventChange, this._handleModeChange);
+    this._renderEvents(this._eventListComponent, this._events, this._offers, this._descriptions, this._handleEventChange, this._handleModeChange);
   }
 }
