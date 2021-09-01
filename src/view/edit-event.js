@@ -2,30 +2,33 @@ import dayjs from 'dayjs';
 import {CITIES} from '../mock/event.js';
 import AbstractView from './abstract.js';
 
-const createEditOffersTemplate = (allOffers, checkedOffers) => {
+const createEditOffersTemplate = (allOffers, checkedOffers = []) => {
   const checkedTitles = checkedOffers.map((offer) => offer.title);
   const offerItems = [];
+  let count = 0;
 
   for (const offer of allOffers) {
     const {title, price} = offer;
     const titleWords = title.split(' ');
     offerItems.push(`<div class="event__offer-selector">
-        <input class="event__offer-checkbox  visually-hidden" id="event-offer-${titleWords[titleWords.length - 1]}-1"
+        <input class="event__offer-checkbox  visually-hidden" id="event-offer-${titleWords[titleWords.length - 1]}-${count}"
         type="checkbox" name="event-offer-${titleWords[titleWords.length - 1]}" ${checkedTitles.includes(title) ? 'checked' : ''}>
-          <label class="event__offer-label" for="event-offer-${titleWords[titleWords.length - 1]}-1">
+          <label class="event__offer-label" for="event-offer-${titleWords[titleWords.length - 1]}-${count}">
             <span class="event__offer-title">${title}</span>
             &plus;&euro;&nbsp;
             <span class="event__offer-price">${price}</span>
           </label>
       </div>`);
+
+    count++;
   }
-  return `<section class="event__section  event__section--offers">
+  return offerItems.length !== 0 ? `<section class="event__section  event__section--offers">
     <h3 class="event__section-title  event__section-title--offers">Offers</h3>
 
     <div class="event__available-offers">
     ${offerItems.join('')}
     </div>
-  </section>`;
+  </section>` : '';
 };
 
 const createDescriptionTemplate = (description) => (
@@ -35,7 +38,7 @@ const createDescriptionTemplate = (description) => (
                   </section>`
 );
 
-const createEditEventTemplate = (event, allOffers) => {
+const createEditEventTemplate = (data, allOffers) => {
   const {
     basePrice,
     dateFrom,
@@ -44,10 +47,11 @@ const createEditEventTemplate = (event, allOffers) => {
     destination,
     offers,
     type,
-  } = event;
+    hasDescription,
+  } = data;
 
-  const editOffersTemplate = allOffers.size === 0 ? '' : createEditOffersTemplate(allOffers.get(type), offers);
-  const descriptionTemplate = createDescriptionTemplate(description);
+  const editOffersTemplate = createEditOffersTemplate(allOffers.get(type), offers);
+  const descriptionTemplate = hasDescription ? createDescriptionTemplate(description) : '';
   return `<li class="trip-events__item">
               <form class="event event--edit" action="#" method="post">
                 <header class="event__header">
@@ -80,11 +84,6 @@ const createEditEventTemplate = (event, allOffers) => {
                         <div class="event__type-item">
                           <input id="event-type-ship-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value=${'ship' === type ? 'ship checked' : 'ship'}>
                           <label class="event__type-label  event__type-label--ship" for="event-type-ship-1">Ship</label>
-                        </div>
-
-                        <div class="event__type-item">
-                          <input id="event-type-transport-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value=${'transport' === type ? 'transport checked' : 'transport'}>
-                          <label class="event__type-label  event__type-label--transport" for="event-type-transport-1">Transport</label>
                         </div>
 
                         <div class="event__type-item">
@@ -150,7 +149,7 @@ const createEditEventTemplate = (event, allOffers) => {
                 <section class="event__details">
                   ${editOffersTemplate}
 
-                  ${description ? descriptionTemplate : ''}
+                  ${hasDescription ? descriptionTemplate : ''}
                 </section>
               </form>
             </li>`;
@@ -159,23 +158,69 @@ const createEditEventTemplate = (event, allOffers) => {
 export default class EditEvent extends AbstractView {
   constructor(event, allOffers) {
     super();
-    this._event = event;
+    this._data = EditEvent.parseEventToData(event);
     this._allOffers = allOffers;
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
     this._hideFormBtnClickHandler = this._hideFormBtnClickHandler.bind(this);
+    this._formChangeHandler = this._formChangeHandler.bind(this);
+    this._priceInputHandler = this._priceInputHandler.bind(this);
+
+    this._setInnerHandlers();
   }
 
   getTemplate() {
-    return createEditEventTemplate(this._event, this._allOffers);
+    return createEditEventTemplate(this._data, this._allOffers);
   }
 
   _formSubmitHandler(evt) {
     evt.preventDefault();
-    this._callback.formSubmit(this._event);
+    this._callback.formSubmit(EditEvent.parseDataToEvent(this._data));
   }
 
   _hideFormBtnClickHandler() {
     this._callback.hideBtnClick();
+  }
+
+  _formChangeHandler(evt) {
+    if (evt.target.name === 'event-type') {
+
+      this.updateData({
+        type: evt.target.value,
+      });
+
+    } else if (evt.target.name === 'event-destination') {
+
+      this.updateData({
+        destination: evt.target.value,
+      }, true);
+
+    }
+    else if (evt.target.classList.contains('event__offer-checkbox')) {
+      let newOffers = this._data.offers;
+      const price = evt.target.nextElementSibling.querySelector('.event__offer-price').textContent;
+      const title = evt.target.nextElementSibling.querySelector('.event__offer-title').textContent;
+
+      if (evt.target.checked) {
+        newOffers.push({
+          price,
+          title,
+        });
+      } else {
+        newOffers = newOffers.filter((offer) => offer.title !== title);
+      }
+
+      this.updateData({
+        offers: newOffers,
+      });
+
+      console.log(this._data.offers);
+    }
+  }
+
+  _priceInputHandler(evt) {
+    this.updateData({
+      basePrice: evt.target.value,
+    }, true);
   }
 
   setFormSubmitHandler(cb) {
@@ -186,5 +231,66 @@ export default class EditEvent extends AbstractView {
   setHideFormBtnClickHandler(cb) {
     this._callback.hideBtnClick = cb;
     this.getElement().querySelector('.event__rollup-btn').addEventListener('click', this._hideFormBtnClickHandler);
+  }
+
+  static parseEventToData(event) {
+    return Object.assign(
+      {},
+      event,
+      {
+        hasDescription: event.description !== null,
+      },
+    );
+  }
+
+  static parseDataToEvent(data) {
+    data = Object.assign({}, data);
+
+    if (!data.description) {
+      data.description = null;
+    }
+
+    delete data.hasDescription;
+
+    return data;
+  }
+
+  updateElement() {
+    const prevElement = this.getElement();
+    const parent = prevElement.parentElement;
+    this.removeElement();
+
+    const newElement = this.getElement();
+    parent.replaceChild(newElement, prevElement);
+
+    this.restoreHandlers();
+  }
+
+  updateData(updatedData, onlyDataUpdating) {
+    if (!updatedData) {
+      return;
+    }
+
+    this._data = Object.assign(
+      {},
+      this._data,
+      updatedData,
+    );
+
+    if (onlyDataUpdating) {
+      return;
+    }
+    this.updateElement();
+  }
+
+  _setInnerHandlers() {
+    this.getElement().querySelector('.event--edit').addEventListener('change', this._formChangeHandler);
+    this.getElement().querySelector('.event__input--price').addEventListener('input', this._priceInputHandler);
+  }
+
+  restoreHandlers() {
+    this._setInnerHandlers();
+    this.setFormSubmitHandler(this._callback.formSubmit);
+    this.setHideFormBtnClickHandler(this._callback.hideBtnClick);
   }
 }
