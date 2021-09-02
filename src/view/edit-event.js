@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import {CITIES} from '../mock/event.js';
-import AbstractView from './abstract.js';
+import SmartView from './smart.js';
 
 const createEditOffersTemplate = (allOffers, checkedOffers = []) => {
   const checkedTitles = checkedOffers.map((offer) => offer.title);
@@ -163,7 +163,7 @@ const createEditEventTemplate = (data, allOffers, descriptions) => {
             </li>`;
 };
 
-export default class EditEvent extends AbstractView {
+export default class EditEvent extends SmartView {
   constructor(event, allOffers, descriptions) {
     super();
     this._data = EditEvent.parseEventToData(event);
@@ -203,8 +203,7 @@ export default class EditEvent extends AbstractView {
         destination: evt.target.value,
       });
 
-    }
-    else if (evt.target.classList.contains('event__offer-checkbox')) {
+    } else if (evt.target.classList.contains('event__offer-checkbox')) {
       let newOffers = this._data.offers;
       const price = evt.target.nextElementSibling.querySelector('.event__offer-price').textContent;
       const title = evt.target.nextElementSibling.querySelector('.event__offer-title').textContent;
@@ -256,34 +255,6 @@ export default class EditEvent extends AbstractView {
     delete data.hasDescription;
 
     return data;
-  }
-
-  updateElement() {
-    const prevElement = this.getElement();
-    const parent = prevElement.parentElement;
-    this.removeElement();
-
-    const newElement = this.getElement();
-    parent.replaceChild(newElement, prevElement);
-
-    this.restoreHandlers();
-  }
-
-  updateData(updatedData, onlyDataUpdating) {
-    if (!updatedData) {
-      return;
-    }
-
-    this._data = Object.assign(
-      {},
-      this._data,
-      updatedData,
-    );
-
-    if (onlyDataUpdating) {
-      return;
-    }
-    this.updateElement();
   }
 
   _setInnerHandlers() {
