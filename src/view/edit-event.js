@@ -195,6 +195,7 @@ export default class EditEvent extends SmartView {
 
       this.updateData({
         type: evt.target.value,
+        offers: [],
       });
 
     } else if (evt.target.name === 'event-destination') {
