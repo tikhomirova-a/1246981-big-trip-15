@@ -205,17 +205,18 @@ export default class EditEvent extends SmartView {
       });
 
     } else if (evt.target.classList.contains('event__offer-checkbox')) {
+      const availableOffers = this._allOffers.get(this._data.type);
       let newOffers = this._data.offers;
-      const price = evt.target.nextElementSibling.querySelector('.event__offer-price').textContent;
-      const title = evt.target.nextElementSibling.querySelector('.event__offer-title').textContent;
+
+      const targetOffer = availableOffers.find((offer) => {
+        const titleWords = offer.title.split(' ');
+        return `event-offer-${titleWords[titleWords.length - 1]}` === evt.target.name;
+      });
 
       if (evt.target.checked) {
-        newOffers.push({
-          price,
-          title,
-        });
+        newOffers.push(targetOffer);
       } else {
-        newOffers = newOffers.filter((offer) => offer.title !== title);
+        newOffers = newOffers.filter((offer) => offer.title !== targetOffer.title);
       }
 
       this.updateData({
