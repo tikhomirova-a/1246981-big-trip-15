@@ -1,6 +1,8 @@
 import dayjs from 'dayjs';
 import {CITIES} from '../mock/event.js';
 import SmartView from './smart.js';
+import flatpickr from 'flatpickr';
+import '../../node_modules/flatpickr/dist/flatpickr.min.css';
 
 const createEditOffersTemplate = (allOffers, checkedOffers = []) => {
   const checkedTitles = checkedOffers.map((offer) => offer.title);
@@ -134,10 +136,10 @@ const createEditEventTemplate = (data, allOffers, descriptions) => {
 
                   <div class="event__field-group  event__field-group--time">
                     <label class="visually-hidden" for="event-start-time-1">From</label>
-                    <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${dayjs(dateFrom).format('YY/MM/DD HH:MM')}">
+                    <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${dayjs(dateFrom).format('DD/MM/YY HH:MM')}">
                     &mdash;
                     <label class="visually-hidden" for="event-end-time-1">To</label>
-                    <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${dayjs(dateTo).format('YY/MM/DD HH:MM')}">
+                    <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${dayjs(dateTo).format('DD/MM/YY HH:MM')}">
                   </div>
 
                   <div class="event__field-group  event__field-group--price">
@@ -169,16 +171,94 @@ export default class EditEvent extends SmartView {
     this._data = EditEvent.parseEventToData(event);
     this._allOffers = allOffers;
     this._descriptions = descriptions;
+    this._dateFromPicker = null;
+    this._dateToPicker = null;
+
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
     this._hideFormBtnClickHandler = this._hideFormBtnClickHandler.bind(this);
     this._formChangeHandler = this._formChangeHandler.bind(this);
     this._priceInputHandler = this._priceInputHandler.bind(this);
+    this._dateFromChangeHandler = this._dateFromChangeHandler.bind(this);
+    this._dateToChangeHandler = this._dateToChangeHandler.bind(this);
+    this._dateToCorrectHandler = this._dateToCorrectHandler.bind(this);
 
     this._setInnerHandlers();
+    this._setDatePicker();
   }
 
   getTemplate() {
     return createEditEventTemplate(this._data, this._allOffers, this._descriptions);
+  }
+
+  _setDatePicker() {
+    if (this._dateFromPicker) {
+      this._dateFromPicker.destroy();
+      this._dateFromPicker = null;
+    } else if (this._dateToPicker) {
+      this._dateToPicker.destroy();
+      this._dateToPicker = null;
+    }
+
+    this._dateFromPicker = flatpickr(
+      this.getElement().querySelector('input[name=event-start-time]'),
+      {
+        dateFormat: 'd/m/Y H:i',
+        defaultDate: this._data.dateFrom,
+        defaultHour: dayjs(this._data.dateFrom).get('hour'),
+        defaultMinute: dayjs(this._data.dateFrom).get('minute'),
+        enableTime: true,
+        // time_24hr: true,
+        onClose: [
+          this._dateFromChangeHandler,
+          this._dateToCorrectHandler,
+        ],
+      },
+    );
+
+    this._dateToPicker = flatpickr(
+      this.getElement().querySelector('input[name=event-end-time]'),
+      {
+        dateFormat: 'd/m/Y H:i',
+        defaultDate: this._data.dateTo,
+        defaultHour: dayjs(this._data.dateTo).get('hour'),
+        defaultMinute: dayjs(this._data.dateTo).get('minute'),
+        minDate: this._data.dateFrom,
+        enableTime: true,
+        // time_24hr: true,
+        onClose:
+          this._dateToChangeHandler,
+      },
+    );
+  }
+
+  _dateFromChangeHandler([userDate]) {
+    if (!userDate) {
+      userDate = this._data.dateFrom;
+    }
+    this.updateData({
+      dateFrom: userDate,
+      dateTo: this._data.dateTo,
+    });
+  }
+
+  _dateToCorrectHandler([userDate]) {
+    if (!userDate) {
+      userDate = this._data.dateFrom;
+    }
+    if (dayjs(userDate).isAfter(this._data.dateTo)) {
+      this.updateData({
+        dateTo: userDate,
+      });
+    }
+  }
+
+  _dateToChangeHandler([userDate]) {
+    if (!userDate) {
+      userDate = this._data.dateTo;
+    }
+    this.updateData({
+      dateTo: userDate,
+    });
   }
 
   _formSubmitHandler(evt) {
@@ -266,6 +346,7 @@ export default class EditEvent extends SmartView {
 
   restoreHandlers() {
     this._setInnerHandlers();
+    this._setDatePicker();
     this.setFormSubmitHandler(this._callback.formSubmit);
     this.setHideFormBtnClickHandler(this._callback.hideBtnClick);
   }
