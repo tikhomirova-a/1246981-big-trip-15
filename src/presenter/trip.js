@@ -98,7 +98,7 @@ export default class Trip {
     }
     this._sortEvents(sortType);
     this._clearEventList();
-    this._renderEvents(this._eventListComponent, this._events, this._offers, this._handleEventChange, this._handleModeChange);
+    this._renderEvents(this._eventListComponent, this._events, this._offers, this._descriptions, this._handleEventChange, this._handleModeChange);
   }
 
   _renderSort() {
