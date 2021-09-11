@@ -2,7 +2,7 @@ import dayjs from 'dayjs';
 import {CITIES} from '../mock/event.js';
 import SmartView from './smart.js';
 import flatpickr from 'flatpickr';
-import '../../node_modules/flatpickr/dist/flatpickr.min.css';
+import 'flatpickr/dist/flatpickr.min.css';
 
 const createEditOffersTemplate = (allOffers, checkedOffers = []) => {
   const checkedTitles = checkedOffers.map((offer) => offer.title);
@@ -207,7 +207,7 @@ export default class EditEvent extends SmartView {
         defaultHour: dayjs(this._data.dateFrom).get('hour'),
         defaultMinute: dayjs(this._data.dateFrom).get('minute'),
         enableTime: true,
-        // time_24hr: true,
+        ['time_24hr']: true,
         onClose: [
           this._dateFromChangeHandler,
           this._dateToCorrectHandler,
@@ -224,7 +224,7 @@ export default class EditEvent extends SmartView {
         defaultMinute: dayjs(this._data.dateTo).get('minute'),
         minDate: this._data.dateFrom,
         enableTime: true,
-        // time_24hr: true,
+        ['time_24hr']: true,
         onClose:
           this._dateToChangeHandler,
       },
