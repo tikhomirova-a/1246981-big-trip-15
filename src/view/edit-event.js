@@ -350,4 +350,10 @@ export default class EditEvent extends SmartView {
     this.setFormSubmitHandler(this._callback.formSubmit);
     this.setHideFormBtnClickHandler(this._callback.hideBtnClick);
   }
+
+  reset(event) {
+    this.updateData(
+      EditEvent.parseEventToData(event),
+    );
+  }
 }
