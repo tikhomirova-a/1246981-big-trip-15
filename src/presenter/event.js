@@ -1,7 +1,7 @@
 import EventView from '../view/event.js';
 import EditEventView from '../view/edit-event.js';
 import {render, replace, remove} from '../utils/render.js';
-import {Key} from '../utils/const.js';
+import {Key, UserAction, UpdateType} from '../utils/const.js';
 
 const Mode = {
   DEFAULT: 'default',
@@ -94,7 +94,7 @@ export default class Event {
   }
 
   _editFormSubmitHandler(event) {
-    this._changeData(event);
+    this._changeData(UserAction.UPDATE_EVENT, UpdateType.MINOR, event);
     this._replaceFormToEvent();
   }
 
@@ -104,7 +104,8 @@ export default class Event {
   }
 
   _favoriteBtnClickHandler() {
-    this._changeData(
+    this._changeData(UserAction.UPDATE_EVENT,
+      UpdateType.PATCH,
       Object.assign(
         {},
         this._event,
