@@ -2,6 +2,7 @@ import EventView from '../view/event.js';
 import EditEventView from '../view/edit-event.js';
 import {render, replace, remove} from '../utils/render.js';
 import {Key, UserAction, UpdateType} from '../utils/const.js';
+import {isDayEqual, isDurationEqual, isPriceEqual} from '../utils/event.js';
 
 const Mode = {
   DEFAULT: 'default',
@@ -95,8 +96,15 @@ export default class Event {
     window.addEventListener('keydown', this._escKeyDownHandler);
   }
 
-  _editFormSubmitHandler(event) {
-    this._changeData(UserAction.UPDATE_EVENT, UpdateType.MINOR, event);
+  _editFormSubmitHandler(updatedEvent) {
+    const isMinorUpdate = !isDayEqual(this._event, updatedEvent)
+      || !isDurationEqual(this._event, updatedEvent)
+      || !isPriceEqual(this._event, updatedEvent);
+
+    this._changeData(
+      UserAction.UPDATE_EVENT,
+      isMinorUpdate ? UpdateType.MINOR : UpdateType.PATCH,
+      updatedEvent);
     this._replaceFormToEvent();
   }
 

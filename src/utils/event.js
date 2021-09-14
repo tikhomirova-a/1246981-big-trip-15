@@ -28,3 +28,9 @@ export const sortByTime = (eventA, eventB) => {
   const diffB = dayjs(eventB.dateTo).diff(dayjs(eventB.dateFrom));
   return diffB - diffA;
 };
+
+export const isDayEqual = (a, b) => (dayjs(a.dateFrom).day() === dayjs(b.dateFrom).day());
+
+export const isDurationEqual = (a, b) => (getDuration(a.dateFrom, a.dateTo) === getDuration(b.dateFrom, b.dateTo));
+
+export const isPriceEqual = (a, b) => (a.basePrice === b.basePrice);
