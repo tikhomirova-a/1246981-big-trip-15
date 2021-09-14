@@ -87,7 +87,7 @@ export default class Trip {
         this._renderTrip();
         break;
       case UpdateType.MAJOR:
-        this._clearTrip({resetRenderedEventCount: true, resetSortType: true});
+        this._clearTrip({resetSortType: true});
         this._renderTrip();
         break;
     }
@@ -127,7 +127,7 @@ export default class Trip {
       return;
     }
     this._currentSortType = sortType;
-    this._clearTrip({resetRenderedEventCount: true});
+    this._clearTrip();
     this._renderTrip();
   }
 
@@ -159,18 +159,14 @@ export default class Trip {
     }
   }
 
-  _clearTrip({resetRenderedEventCount = false, resetSortType = false} = {}) {
+  _clearTrip({resetSortType = false} = {}) {
     const eventsCount = this._getEvents().length;
     this._clearEventList();
 
     remove(this._sortComponent);
     remove(this._noEventComponent);
 
-    if (resetRenderedEventCount) {
-      this._renderedEventCount = EVENT_COUNT;
-    } else {
-      this._renderedEventCount = Math.min(eventsCount, this._renderedEventCount);
-    }
+    this._renderedEventCount = Math.min(eventsCount, this._renderedEventCount);
 
     if (resetSortType) {
       this._currentSortType = SortType.DAY;

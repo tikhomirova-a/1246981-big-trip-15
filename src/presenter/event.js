@@ -24,6 +24,7 @@ export default class Event {
     this._hideFormBtnClickHandler = this._hideFormBtnClickHandler.bind(this);
     this._escKeyDownHandler = this._escKeyDownHandler.bind(this);
     this._favoriteBtnClickHandler = this._favoriteBtnClickHandler.bind(this);
+    this._deleteBtnClickHandler = this._deleteBtnClickHandler.bind(this);
   }
 
   init(event) {
@@ -39,6 +40,7 @@ export default class Event {
     this._eventComponent.setFavoriteBtnClickHandler(this._favoriteBtnClickHandler);
     this._editEventComponent.setFormSubmitHandler(this._editFormSubmitHandler);
     this._editEventComponent.setHideFormBtnClickHandler(this._hideFormBtnClickHandler);
+    this._editEventComponent.setDeleteBtnClickHandler(this._deleteBtnClickHandler);
 
     if (prevEventComponent === null || prevEditEventComponent === null) {
       render(this._eventList, this._eventComponent);
@@ -104,7 +106,8 @@ export default class Event {
   }
 
   _favoriteBtnClickHandler() {
-    this._changeData(UserAction.UPDATE_EVENT,
+    this._changeData(
+      UserAction.UPDATE_EVENT,
       UpdateType.PATCH,
       Object.assign(
         {},
@@ -113,6 +116,14 @@ export default class Event {
           isFavorite: !this._event.isFavorite,
         },
       ),
+    );
+  }
+
+  _deleteBtnClickHandler(event) {
+    this._changeData(
+      UserAction.DELETE_EVENT,
+      UpdateType.MINOR,
+      event,
     );
   }
 }
