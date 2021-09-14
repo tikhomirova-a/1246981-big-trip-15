@@ -13,10 +13,11 @@ import EventPresenter from '../presenter/event.js';
 const EVENT_COUNT = 15;
 
 export default class Trip {
-  constructor(tripMain, eventsContainer, eventsModel) {
+  constructor(tripMain, eventsContainer, eventsModel, offersModel) {
     this._renderedEventCount = EVENT_COUNT;
     this._tripMain = tripMain;
     this._eventsModel = eventsModel;
+    this._offersModel = offersModel;
     this._tripNav = this._tripMain.querySelector('.trip-controls__navigation');
     this._filtersContainer = this._tripMain.querySelector('.trip-controls__filters');
     this._eventsContainer = eventsContainer;
@@ -39,8 +40,7 @@ export default class Trip {
     this._eventsModel.addObserver(this._handleModelEvent);
   }
 
-  init(offers, descriptions) {
-    this._offers = offers;
+  init(descriptions) {
     this._descriptions = descriptions;
 
     this._renderTripInfo();
@@ -184,6 +184,6 @@ export default class Trip {
     }
     this._renderSort();
     this._renderEventList();
-    this._renderEvents(this._eventListComponent, this._offers, this._descriptions, this._handleViewAction, this._handleModeChange);
+    this._renderEvents(this._eventListComponent, this._offersModel.getOffers(), this._descriptions, this._handleViewAction, this._handleModeChange);
   }
 }
