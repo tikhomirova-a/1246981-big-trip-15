@@ -2,6 +2,7 @@ import {generateDestinationInfo, generateEvent, generateOffers} from './mock/eve
 import TripPresenter from './presenter/trip.js';
 import EventsModel from './model/events.js';
 import OffersModel from './model/offers.js';
+import DescriptionsModel from './model/descriptions.js';
 
 const EVENT_COUNT = 15;
 
@@ -15,7 +16,10 @@ eventsModel.setEvents(events);
 const offersModel = new OffersModel();
 offersModel.setOffers(offers);
 
+const descriptionsModel = new DescriptionsModel();
+descriptionsModel.setDescriptions(descriptions);
+
 const tripMain = document.querySelector('.trip-main');
 const eventsContainer = document.querySelector('.trip-events');
 
-new TripPresenter(tripMain, eventsContainer, eventsModel, offersModel).init(descriptions);
+new TripPresenter(tripMain, eventsContainer, eventsModel, offersModel, descriptionsModel).init();
