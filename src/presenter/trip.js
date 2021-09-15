@@ -1,26 +1,22 @@
 import {render, remove} from '../utils/render.js';
-import {sortByDay, sortByPrice, sortByTime} from '../utils/event.js';
+import {sortByDay, sortByPrice, sortByTime, filter} from '../utils/event.js';
 import {Position, SortType, UserAction, UpdateType} from '../utils/const.js';
 import TripInfoView from '../view/trip-info.js';
 import TripCostView from '../view/trip-cost.js';
 import SiteMenuView from '../view/site-menu.js';
-import FiltersView from '../view/filters.js';
 import NoEventMsgView from '../view/no-event-msg.js';
 import TripSortView from '../view/trip-sort.js';
 import EventListView from '../view/event-list.js';
 import EventPresenter from '../presenter/event.js';
 
-const EVENT_COUNT = 15;
-
 export default class Trip {
-  constructor(tripMain, eventsContainer, eventsModel, offersModel, descriptionsModel) {
-    this._renderedEventCount = EVENT_COUNT;
+  constructor(tripMain, eventsContainer, eventsModel, offersModel, descriptionsModel, filterModel) {
     this._tripMain = tripMain;
     this._eventsModel = eventsModel;
     this._offersModel = offersModel;
     this._descriptionsModel = descriptionsModel;
+    this._filterModel = filterModel;
     this._tripNav = this._tripMain.querySelector('.trip-controls__navigation');
-    this._filtersContainer = this._tripMain.querySelector('.trip-controls__filters');
     this._eventsContainer = eventsContainer;
     this._eventPresenter = new Map();
     this._currentSortType = SortType.DAY;
@@ -28,7 +24,6 @@ export default class Trip {
     this._TripInfoComponent = new TripInfoView();
     this._tripCostComponent = new TripCostView();
     this._menuViewComponent = new SiteMenuView();
-    this._filtersComponent = new FiltersView();
     this._noEventComponent = new NoEventMsgView();
     this._sortComponent = null;
     this._eventListComponent = new EventListView();
@@ -39,6 +34,7 @@ export default class Trip {
     this._handleSortChange = this._handleSortChange.bind(this);
 
     this._eventsModel.addObserver(this._handleModelEvent);
+    this._filterModel.addObserver(this._handleModelEvent);
   }
 
   init() {
@@ -47,20 +43,23 @@ export default class Trip {
 
     this._renderTripInfo();
     this._renderCost();
-    this._renderControls();
+    this._renderMenu();
     this._renderTrip();
   }
 
   _getEvents() {
+    const filterType = this._filterModel.getFilter();
+    const events = this._eventsModel.getEvents();
+    const filteredEvents = filter[filterType](events);
+
     switch (this._currentSortType) {
       case SortType.DAY:
-        return this._eventsModel.getEvents().slice().sort(sortByDay);
+        return filteredEvents.sort(sortByDay);
       case SortType.PRICE:
-        return this._eventsModel.getEvents().slice().sort(sortByPrice);
+        return filteredEvents.sort(sortByPrice);
       case SortType.TIME:
-        return this._eventsModel.getEvents().slice().sort(sortByTime);
+        return filteredEvents.sort(sortByTime);
     }
-    return this._eventsModel.getEvents();
   }
 
   _handleViewAction(actionType, updateType, updatedEvent) {
@@ -105,17 +104,8 @@ export default class Trip {
     render(this._TripInfoComponent, this._tripCostComponent);
   }
 
-  _renderMenuView() {
+  _renderMenu() {
     render(this._tripNav, this._menuViewComponent);
-  }
-
-  _renderFilters() {
-    render(this._filtersContainer, this._filtersComponent);
-  }
-
-  _renderControls() {
-    this._renderMenuView();
-    this._renderFilters();
   }
 
   _renderNoEvent() {
@@ -152,7 +142,7 @@ export default class Trip {
 
   _renderEvents(eventList, offers, descriptions, changeData, changeMode) {
     const events = this._getEvents();
-    for (let i = 0; i < this._renderedEventCount; i++) {
+    for (let i = 0; i < events.length; i++) {
       const eventPresenter = new EventPresenter(eventList, offers, descriptions, changeData, changeMode);
       eventPresenter.init(events[i]);
       this._eventPresenter.set(events[i].id, eventPresenter);
@@ -160,13 +150,10 @@ export default class Trip {
   }
 
   _clearTrip({resetSortType = false} = {}) {
-    const eventsCount = this._getEvents().length;
     this._clearEventList();
 
     remove(this._sortComponent);
     remove(this._noEventComponent);
-
-    this._renderedEventCount = Math.min(eventsCount, this._renderedEventCount);
 
     if (resetSortType) {
       this._currentSortType = SortType.DAY;

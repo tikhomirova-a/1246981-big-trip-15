@@ -1,7 +1,10 @@
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration.js';
+import isToday from 'dayjs/plugin/isToday.js';
+import {FilterType} from './const.js';
 
 dayjs.extend(duration);
+dayjs.extend(isToday);
 
 export const getDuration = (start, end) => {
   const dateDifference = dayjs(end).diff(dayjs(start));
@@ -34,3 +37,9 @@ export const isDayEqual = (a, b) => (dayjs(a.dateFrom).day() === dayjs(b.dateFro
 export const isDurationEqual = (a, b) => (getDuration(a.dateFrom, a.dateTo) === getDuration(b.dateFrom, b.dateTo));
 
 export const isPriceEqual = (a, b) => (a.basePrice === b.basePrice);
+
+export const filter = {
+  [FilterType.EVERYTHING]: (events) => events.slice(),
+  [FilterType.FUTURE]: (events) => events.filter((event) => dayjs(event.dateFrom).isAfter(dayjs(), 'day') || dayjs(event.dateFrom).isToday()),
+  [FilterType.PAST]: (events) => events.filter((event) => dayjs(event.dateTo).isBefore(dayjs(), 'day')),
+};

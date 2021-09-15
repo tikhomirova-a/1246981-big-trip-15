@@ -1,8 +1,10 @@
 import {generateDestinationInfo, generateEvent, generateOffers} from './mock/event.js';
 import TripPresenter from './presenter/trip.js';
+import FilterPresenter from './presenter/filter.js';
 import EventsModel from './model/events.js';
 import OffersModel from './model/offers.js';
 import DescriptionsModel from './model/descriptions.js';
+import FilterModel from './model/filter.js';
 
 const EVENT_COUNT = 15;
 
@@ -19,7 +21,11 @@ offersModel.setOffers(offers);
 const descriptionsModel = new DescriptionsModel();
 descriptionsModel.setDescriptions(descriptions);
 
+const filterModel = new FilterModel();
+
 const tripMain = document.querySelector('.trip-main');
 const eventsContainer = document.querySelector('.trip-events');
+const filtersContainer = tripMain.querySelector('.trip-controls__filters');
 
-new TripPresenter(tripMain, eventsContainer, eventsModel, offersModel, descriptionsModel).init();
+new TripPresenter(tripMain, eventsContainer, eventsModel, offersModel, descriptionsModel, filterModel).init();
+new FilterPresenter(filtersContainer, filterModel, eventsModel).init();
