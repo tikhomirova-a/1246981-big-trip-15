@@ -8,12 +8,6 @@ export const Key = {
   ESCAPE: 'Escape',
 };
 
-export const Filter = {
-  PAST: 'past',
-  FUTURE: 'future',
-  EVERYTHING: 'everything',
-};
-
 export const SortType = {
   DAY: 'sort-day',
   TIME: 'sort-time',

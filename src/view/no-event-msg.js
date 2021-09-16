@@ -1,13 +1,13 @@
 import AbstractView from './abstract.js';
-import {Filter} from '../utils/const.js';
+import {FilterType} from '../utils/const.js';
 
-const createNoEventMsgTemplate = (filter = Filter.EVERYTHING) => {
+const createNoEventMsgTemplate = (filter = FilterType.EVERYTHING) => {
   let message;
   switch (filter) {
-    case Filter.PAST:
+    case FilterType.PAST:
       message = 'There are no past events now';
       break;
-    case Filter.FUTURE:
+    case FilterType.FUTURE:
       message = 'There are no future events now';
       break;
     default:

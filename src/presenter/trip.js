@@ -1,6 +1,6 @@
 import {render, remove} from '../utils/render.js';
 import {sortByDay, sortByPrice, sortByTime, filter} from '../utils/event.js';
-import {Position, SortType, UserAction, UpdateType} from '../utils/const.js';
+import {Position, SortType, UserAction, UpdateType, FilterType} from '../utils/const.js';
 import TripInfoView from '../view/trip-info.js';
 import TripCostView from '../view/trip-cost.js';
 import SiteMenuView from '../view/site-menu.js';
@@ -20,11 +20,12 @@ export default class Trip {
     this._eventsContainer = eventsContainer;
     this._eventPresenter = new Map();
     this._currentSortType = SortType.DAY;
+    this._filterType = FilterType.EVERYTHING;
 
     this._TripInfoComponent = new TripInfoView();
     this._tripCostComponent = new TripCostView();
     this._menuViewComponent = new SiteMenuView();
-    this._noEventComponent = new NoEventMsgView();
+    this._noEventComponent = null;
     this._sortComponent = null;
     this._eventListComponent = new EventListView();
 
@@ -48,9 +49,9 @@ export default class Trip {
   }
 
   _getEvents() {
-    const filterType = this._filterModel.getFilter();
+    this._filterType = this._filterModel.getFilter();
     const events = this._eventsModel.getEvents();
-    const filteredEvents = filter[filterType](events);
+    const filteredEvents = filter[this._filterType](events);
 
     switch (this._currentSortType) {
       case SortType.DAY:
@@ -109,6 +110,7 @@ export default class Trip {
   }
 
   _renderNoEvent() {
+    this._noEventComponent = new NoEventMsgView(this._filterType);
     render(this._eventsContainer, this._noEventComponent);
   }
 
@@ -153,7 +155,9 @@ export default class Trip {
     this._clearEventList();
 
     remove(this._sortComponent);
-    remove(this._noEventComponent);
+    if (this._noEventComponent) {
+      remove(this._noEventComponent);
+    }
 
     if (resetSortType) {
       this._currentSortType = SortType.DAY;
