@@ -342,8 +342,20 @@ export default class EditEvent extends SmartView {
   }
 
   _priceInputHandler(evt) {
+    const priceDigits = evt.target.value.split('');
+
+    for (let i = 0; i < priceDigits.length; i++) {
+      if (priceDigits[i].match(new RegExp(/\D/g))) {
+        priceDigits.splice(i, 1);
+      }
+    }
+
+    const priceOutput = priceDigits.join('');
+
+    evt.target.value = priceOutput;
+
     this.updateData({
-      basePrice: evt.target.value,
+      basePrice: priceOutput,
     }, true);
   }
 
