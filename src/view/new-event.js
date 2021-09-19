@@ -1,8 +1,8 @@
 import AbstractView from './abstract.js';
-import {TYPES} from '../mock/event.js';
+import {POINT_TYPES} from '../utils/const.js';
 
 const createNewEventTemplate = () => {
-  const type = TYPES[0];
+  const type = POINT_TYPES[0];
   return `<li class="trip-events__item">
               <form class="event event--edit" action="#" method="post">
                 <header class="event__header">
@@ -173,7 +173,22 @@ const createNewEventTemplate = () => {
 };
 
 export default class NewEvent extends AbstractView {
+  constructor() {
+    super();
+    this._submitHandler = this._submitHandler.bind(this);
+  }
+
   getTemplate() {
     return createNewEventTemplate();
+  }
+
+  _submitHandler(evt) {
+    evt.preventDefault();
+    this._callback.formSubmit(event);
+  }
+
+  setSubmitHandler(cb) {
+    this._callback.formSubmit = cb;
+    this.getElement().querySelector('form').addEventListener('submit', this._submitHandler);
   }
 }

@@ -27,5 +27,10 @@ const tripMain = document.querySelector('.trip-main');
 const eventsContainer = document.querySelector('.trip-events');
 const filtersContainer = tripMain.querySelector('.trip-controls__filters');
 
-new TripPresenter(tripMain, eventsContainer, eventsModel, offersModel, descriptionsModel, filterModel).init();
+const tripPresenter = new TripPresenter(tripMain, eventsContainer, eventsModel, offersModel, descriptionsModel, filterModel);
+tripPresenter.init();
 new FilterPresenter(filtersContainer, filterModel, eventsModel).init();
+
+document.querySelector('.trip-main__event-add-btn').addEventListener('click', () => {
+  tripPresenter.createEvent();
+});

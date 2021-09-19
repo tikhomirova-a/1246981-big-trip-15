@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
 import {nanoid} from 'nanoid';
+import {POINT_TYPES} from '../utils/const.js';
 
 const getRandomInteger = (a = 0, b = 1) => {
   const lower = Math.ceil(Math.min(a, b));
@@ -8,7 +9,6 @@ const getRandomInteger = (a = 0, b = 1) => {
   return Math.floor(lower + Math.random() * (upper - lower + 1));
 };
 
-export const TYPES = ['taxi', 'bus', 'train', 'ship', 'drive', 'flight', 'check-in', 'sightseeing', 'restaurant'];
 export const CITIES = ['Amsterdam', 'Chamonix','Geneva'];
 const OFFER_TITLES = ['Switch to comfort class', 'Add luggage', 'Add meal', 'Choose seats', 'Travel by train'];
 const OFFER_PRICES = ['100', '5', '30', '15', '40'];
@@ -31,7 +31,7 @@ const generateOption = () => (
 );
 
 export const generateOffers = () => {
-  for (const type of TYPES) {
+  for (const type of POINT_TYPES) {
     const options = new Array(getRandomInteger(0, 5)).fill().map(generateOption);
 
     offer.set(type, options);
@@ -40,7 +40,7 @@ export const generateOffers = () => {
 };
 
 export const generateDestinationInfo = () => {
-  for (const city of CITIES) {
+  for (const city of ['Amsterdam', 'Berlin','Riga']) {
     destinationInfo.set(city, {
       description: DESCRIPTIONS[getRandomInteger(0, DESCRIPTIONS.length - 1)],
       photos: [
@@ -68,7 +68,7 @@ const generateDateTo = (start) => (
 );
 
 export const generateEvent = () => {
-  const type = TYPES[getRandomInteger(0, TYPES.length - 1)];
+  const type = POINT_TYPES[getRandomInteger(0, POINT_TYPES.length - 1)];
   const destination = CITIES[getRandomInteger(0, CITIES.length - 1)];
   const dateFrom = generateDateFrom();
   return {

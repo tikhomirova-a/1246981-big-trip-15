@@ -35,7 +35,7 @@ export default class Event {
     const prevEditEventComponent = this._editEventComponent;
 
     this._eventComponent = new EventView(event);
-    this._editEventComponent = new EditEventView(event, this._offers, this._descriptions);
+    this._editEventComponent = new EditEventView(this._offers, this._descriptions, event);
 
     this._eventComponent.setRollUpBtnClickHandler(this._rollUpBtnClickHandler);
     this._eventComponent.setFavoriteBtnClickHandler(this._favoriteBtnClickHandler);

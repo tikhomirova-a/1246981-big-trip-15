@@ -8,6 +8,7 @@ import NoEventMsgView from '../view/no-event-msg.js';
 import TripSortView from '../view/trip-sort.js';
 import EventListView from '../view/event-list.js';
 import EventPresenter from '../presenter/event.js';
+import NewEventPresenter from '../presenter/newEvent.js';
 
 export default class Trip {
   constructor(tripMain, eventsContainer, eventsModel, offersModel, descriptionsModel, filterModel) {
@@ -36,6 +37,8 @@ export default class Trip {
 
     this._eventsModel.addObserver(this._handleModelEvent);
     this._filterModel.addObserver(this._handleModelEvent);
+
+    this._newEventPresenter = new NewEventPresenter(this._eventListComponent, this._offersModel.getOffers(), this._descriptionsModel.getDescriptions(), this._handleViewAction);
   }
 
   init() {
@@ -46,6 +49,13 @@ export default class Trip {
     this._renderCost();
     this._renderMenu();
     this._renderTrip();
+  }
+
+  createEvent() {
+    this._currentSortType = SortType.DAY;
+    this._filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
+    // this._newEventPresenter = ;
+    this._newEventPresenter.init();
   }
 
   _getEvents() {
@@ -94,6 +104,9 @@ export default class Trip {
   }
 
   _handleModeChange() {
+    if (this._newEventPresenter) {
+      this._newEventPresenter.destroy();
+    }
     this._eventPresenter.forEach((presenter) => presenter.resetMode());
   }
 
@@ -138,6 +151,9 @@ export default class Trip {
   }
 
   _clearEventList() {
+    if (this._newEventPresenter) {
+      this._newEventPresenter.destroy();
+    }
     this._eventPresenter.forEach((presenter) => presenter.destroy());
     this._eventPresenter.clear();
   }
