@@ -256,7 +256,7 @@ export default class EditEvent extends SmartView {
         defaultMinute: dayjs(this._data.dateTo).get('minute'),
         minDate: this._data.dateFrom,
         enableTime: true,
-        ['time_24hr']: true,
+        'time_24hr': true,
         onClose:
           this._dateToChangeHandler,
       },

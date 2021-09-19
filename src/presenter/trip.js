@@ -8,7 +8,7 @@ import NoEventMsgView from '../view/no-event-msg.js';
 import TripSortView from '../view/trip-sort.js';
 import EventListView from '../view/event-list.js';
 import EventPresenter from '../presenter/event.js';
-import NewEventPresenter from '../presenter/newEvent.js';
+import NewEventPresenter from './new-event.js';
 
 export default class Trip {
   constructor(tripMain, eventsContainer, eventsModel, offersModel, descriptionsModel, filterModel) {
@@ -54,7 +54,6 @@ export default class Trip {
   createEvent() {
     this._currentSortType = SortType.DAY;
     this._filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
-    // this._newEventPresenter = ;
     this._newEventPresenter.init();
   }
 
