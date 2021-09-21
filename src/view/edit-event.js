@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
-import {CITIES} from '../mock/event.js';
 import {POINT_TYPES} from '../utils/const.js';
+import {getCities} from '../utils/event.js';
 import SmartView from './smart.js';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
@@ -61,7 +61,7 @@ const createDescriptionTemplate = (description, photos) => {
                   </section>`;
 };
 
-const createEditEventTemplate = (data, allOffers, descriptions) => {
+const createEditEventTemplate = (data, allOffers, descriptions, cities) => {
   const {
     basePrice,
     dateFrom,
@@ -148,7 +148,7 @@ const createEditEventTemplate = (data, allOffers, descriptions) => {
                     </label>
                     <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination !== null ? destination : ''}" list="destination-list-1">
                     <datalist id="destination-list-1">
-                    ${CITIES.map((city) => `<option value="${city}"></option>`).join('')}
+                    ${cities.map((city) => `<option value="${city}"></option>`).join('')}
                     </datalist>
                   </div>
 
@@ -191,6 +191,7 @@ export default class EditEvent extends SmartView {
     this._data = EditEvent.parseEventToData(event, this._descriptions);
     this._dateFromPicker = null;
     this._dateToPicker = null;
+    this._cities = getCities(descriptions);
 
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
     this._hideFormBtnClickHandler = this._hideFormBtnClickHandler.bind(this);
@@ -206,7 +207,7 @@ export default class EditEvent extends SmartView {
   }
 
   getTemplate() {
-    return createEditEventTemplate(this._data, this._allOffers, this._descriptions);
+    return createEditEventTemplate(this._data, this._allOffers, this._descriptions, this._cities);
   }
 
   removeElement() {
@@ -311,13 +312,15 @@ export default class EditEvent extends SmartView {
       });
 
     } else if (evt.target.name === 'event-destination') {
-      if (!CITIES.includes(evt.target.value)) {
+      if (!this._cities.includes(evt.target.value)) {
         evt.target.value = '';
       }
 
       this.updateData({
         destination: evt.target.value,
         hasDescription: Boolean(this._descriptions.get(evt.target.value)),
+        destinationDesc: this._descriptions.get(evt.target.value).description,
+        destinationPhotos: this._descriptions.get(evt.target.value).photos,
       });
 
     } else if (evt.target.classList.contains('event__offer-checkbox')) {

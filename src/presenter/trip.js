@@ -7,11 +7,13 @@ import SiteMenuView from '../view/site-menu.js';
 import NoEventMsgView from '../view/no-event-msg.js';
 import TripSortView from '../view/trip-sort.js';
 import EventListView from '../view/event-list.js';
+import LoadingView from '../view/loading.js';
+import ErrorView from '../view/error.js';
 import EventPresenter from '../presenter/event.js';
 import NewEventPresenter from './new-event.js';
 
 export default class Trip {
-  constructor(tripMain, eventsContainer, eventsModel, offersModel, descriptionsModel, filterModel) {
+  constructor(tripMain, eventsContainer, eventsModel, offersModel, descriptionsModel, filterModel, api) {
     this._tripMain = tripMain;
     this._eventsModel = eventsModel;
     this._offersModel = offersModel;
@@ -22,6 +24,8 @@ export default class Trip {
     this._eventPresenter = new Map();
     this._currentSortType = SortType.DAY;
     this._filterType = FilterType.EVERYTHING;
+    this._isLoading = true;
+    this._api = api;
 
     this._TripInfoComponent = new TripInfoView();
     this._tripCostComponent = new TripCostView();
@@ -29,6 +33,8 @@ export default class Trip {
     this._noEventComponent = null;
     this._sortComponent = null;
     this._eventListComponent = new EventListView();
+    this._loadingComponent = new LoadingView();
+    this._errorComponent = new ErrorView();
 
     this._handleViewAction = this._handleViewAction.bind(this);
     this._handleModelEvent = this._handleModelEvent.bind(this);
@@ -38,13 +44,10 @@ export default class Trip {
     this._eventsModel.addObserver(this._handleModelEvent);
     this._filterModel.addObserver(this._handleModelEvent);
 
-    this._newEventPresenter = new NewEventPresenter(this._eventListComponent, this._offersModel.getOffers(), this._descriptionsModel.getDescriptions(), this._handleViewAction);
+    this._newEventPresenter = null;
   }
 
   init() {
-    this._offers = this._offersModel.getOffers();
-    this._descriptions = this._descriptionsModel.getDescriptions();
-
     this._renderTripInfo();
     this._renderCost();
     this._renderMenu();
@@ -54,6 +57,9 @@ export default class Trip {
   createEvent() {
     this._currentSortType = SortType.DAY;
     this._filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
+    if (!this._newEventPresenter) {
+      this._newEventPresenter = new NewEventPresenter(this._eventListComponent, this._offersModel.getOffers(), this._descriptionsModel.getDescriptions(), this._handleViewAction);
+    }
     this._newEventPresenter.init();
   }
 
@@ -75,7 +81,9 @@ export default class Trip {
   _handleViewAction(actionType, updateType, updatedEvent) {
     switch (actionType) {
       case UserAction.UPDATE_EVENT:
-        this._eventsModel.updateEvent(updateType, updatedEvent);
+        this._api.updateEvent(updatedEvent).then((response) => {
+          this._eventsModel.updateEvent(updateType, response);
+        });
         break;
       case UserAction.ADD_EVENT:
         this._eventsModel.addEvent(updateType, updatedEvent);
@@ -97,6 +105,19 @@ export default class Trip {
         break;
       case UpdateType.MAJOR:
         this._clearTrip({resetSortType: true});
+        this._renderTrip();
+        break;
+      case UpdateType.INIT:
+        if (!this._offersModel.getOffers() || this._offersModel.getOffers().size === 0) {
+          remove(this._loadingComponent);
+          this._renderError();
+          return;
+        } else {
+          remove(this._errorComponent);
+        }
+
+        this._isLoading = false;
+        remove(this._loadingComponent);
         this._renderTrip();
         break;
     }
@@ -124,6 +145,14 @@ export default class Trip {
   _renderNoEvent() {
     this._noEventComponent = new NoEventMsgView(this._filterType);
     render(this._eventsContainer, this._noEventComponent);
+  }
+
+  _renderLoading() {
+    render(this._eventsContainer, this._loadingComponent);
+  }
+
+  _renderError() {
+    render(this._eventsContainer, this._errorComponent);
   }
 
   _handleSortChange(sortType) {
@@ -170,6 +199,7 @@ export default class Trip {
     this._clearEventList();
 
     remove(this._sortComponent);
+    remove(this._loadingComponent);
     if (this._noEventComponent) {
       remove(this._noEventComponent);
     }
@@ -180,6 +210,11 @@ export default class Trip {
   }
 
   _renderTrip() {
+    if (this._isLoading) {
+      this._renderLoading();
+      return;
+    }
+
     const eventsCount = this._getEvents().length;
 
     if (eventsCount === 0) {
@@ -188,6 +223,6 @@ export default class Trip {
     }
     this._renderSort();
     this._renderEventList();
-    this._renderEvents(this._eventListComponent, this._offers, this._descriptions, this._handleViewAction, this._handleModeChange);
+    this._renderEvents(this._eventListComponent, this._offersModel.getOffers(), this._descriptionsModel.getDescriptions(), this._handleViewAction, this._handleModeChange);
   }
 }

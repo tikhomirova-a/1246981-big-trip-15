@@ -43,3 +43,5 @@ export const filter = {
   [FilterType.FUTURE]: (events) => events.filter((event) => dayjs(event.dateFrom).isAfter(dayjs(), 'day') || dayjs(event.dateFrom).isToday()),
   [FilterType.PAST]: (events) => events.filter((event) => dayjs(event.dateTo).isBefore(dayjs(), 'day')),
 };
+
+export const getCities = (destinations) => ([...destinations.keys()]);
