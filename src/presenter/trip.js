@@ -1,6 +1,6 @@
 import {render, remove} from '../utils/render.js';
 import {sortByDay, sortByPrice, sortByTime, filter} from '../utils/event.js';
-import {Position, SortType, UserAction, UpdateType, FilterType} from '../utils/const.js';
+import {Position, SortType, UserAction, UpdateType, FilterType, MenuItem} from '../utils/const.js';
 import TripInfoView from '../view/trip-info.js';
 import TripCostView from '../view/trip-cost.js';
 import SiteMenuView from '../view/site-menu.js';
@@ -27,7 +27,7 @@ export default class Trip {
     this._isLoading = true;
     this._api = api;
 
-    this._TripInfoComponent = new TripInfoView();
+    this._tripInfoComponent = new TripInfoView();
     this._tripCostComponent = new TripCostView();
     this._menuViewComponent = new SiteMenuView();
     this._noEventComponent = null;
@@ -35,11 +35,14 @@ export default class Trip {
     this._eventListComponent = new EventListView();
     this._loadingComponent = new LoadingView();
     this._errorComponent = new ErrorView();
+    this._newEventBtn = this._tripMain.querySelector('.trip-main__event-add-btn');
 
     this._handleViewAction = this._handleViewAction.bind(this);
     this._handleModelEvent = this._handleModelEvent.bind(this);
     this._handleModeChange = this._handleModeChange.bind(this);
     this._handleSortChange = this._handleSortChange.bind(this);
+    this._handleSiteMenuClick = this._handleSiteMenuClick.bind(this);
+    this._handleNewEventFormClose = this._handleNewEventFormClose.bind(this);
 
     this._eventsModel.addObserver(this._handleModelEvent);
     this._filterModel.addObserver(this._handleModelEvent);
@@ -54,13 +57,30 @@ export default class Trip {
     this._renderTrip();
   }
 
+  _destroy() {
+    this._clearTrip({resetSortType: true});
+    this._eventsModel.removeObserver(this._handleModelEvent);
+    this._filterModel.removeObserver(this._handleModelEvent);
+  }
+
+  _reinitTrip() {
+    this._eventsModel.addObserver(this._handleModelEvent);
+    this._filterModel.addObserver(this._handleModelEvent);
+
+    this._renderTrip();
+  }
+
   createEvent() {
-    this._currentSortType = SortType.DAY;
+    this._destroy();
     this._filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
+    this._reinitTrip();
+    this._newEventBtn.disabled = true;
+    this._menuViewComponent.setMenuItem(MenuItem.TABLE);
+
     if (!this._newEventPresenter) {
       this._newEventPresenter = new NewEventPresenter(this._eventListComponent, this._offersModel.getOffers(), this._descriptionsModel.getDescriptions(), this._handleViewAction);
     }
-    this._newEventPresenter.init();
+    this._newEventPresenter.init(this._handleNewEventFormClose);
   }
 
   _getEvents() {
@@ -130,15 +150,34 @@ export default class Trip {
     this._eventPresenter.forEach((presenter) => presenter.resetMode());
   }
 
+  _handleNewEventFormClose() {
+    this._newEventBtn.disabled = false;
+    this._menuViewComponent.setMenuItem(MenuItem.TABLE);
+  }
+
+  _handleSiteMenuClick(menuItem) {
+    switch(menuItem) {
+      case(MenuItem.TABLE):
+        this._menuViewComponent.setMenuItem(MenuItem.TABLE);
+        this._reinitTrip();
+        break;
+      case(MenuItem.STATS):
+        this._menuViewComponent.setMenuItem(MenuItem.STATS);
+        this._destroy();
+        break;
+    }
+  }
+
   _renderTripInfo() {
-    render(this._tripMain, this._TripInfoComponent, Position.AFTERBEGIN);
+    render(this._tripMain, this._tripInfoComponent, Position.AFTERBEGIN);
   }
 
   _renderCost() {
-    render(this._TripInfoComponent, this._tripCostComponent);
+    render(this._tripInfoComponent, this._tripCostComponent);
   }
 
   _renderMenu() {
+    this._menuViewComponent.setMenuClickHandler(this._handleSiteMenuClick);
     render(this._tripNav, this._menuViewComponent);
   }
 

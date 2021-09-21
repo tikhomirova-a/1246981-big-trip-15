@@ -17,7 +17,9 @@ export default class NewEvent {
     this._escKeyDownHandler = this._escKeyDownHandler.bind(this);
   }
 
-  init() {
+  init(callback) {
+    this._formCloseHandler = callback;
+
     if (this._editEventComponent !== null) {
       return;
     }
@@ -35,6 +37,11 @@ export default class NewEvent {
     if (this._editEventComponent === null) {
       return;
     }
+
+    if (this._formCloseHandler !== null) {
+      this._formCloseHandler();
+    }
+
     this._editEventComponent.reset();
     remove(this._editEventComponent);
     this._editEventComponent = null;
