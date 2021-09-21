@@ -23,33 +23,18 @@ const filterModel = new FilterModel();
 const tripMain = document.querySelector('.trip-main');
 const eventsContainer = document.querySelector('.trip-events');
 const filtersContainer = tripMain.querySelector('.trip-controls__filters');
-api.getOffers()
-  .then((offers) => {
+
+Promise.all([
+  api.getOffers().catch(() => []),
+  api.getDescriptions().catch(() => []),
+  api.getEvents().catch(() => []),
+])
+  .then(([offers, descriptions, events]) => {
     offersModel.setOffers(offers);
-  })
-  .catch(() => {
-    offersModel.setOffers([]);
-  })
-
-  .then(() => {
-    api.getDescriptions()
-      .then((destinations) => {
-        descriptionsModel.setDescriptions(destinations);
-      })
-      .catch(() => {
-        descriptionsModel.setDescriptions([]);
-      })
-
-      .then(() => {
-        api.getEvents()
-          .then((events) => {
-            eventsModel.setEvents(UpdateType.INIT, events);
-          })
-          .catch(() => {
-            eventsModel.setEvents(UpdateType.INIT, []);
-          });
-      });
+    descriptionsModel.setDescriptions(descriptions);
+    eventsModel.setEvents(UpdateType.INIT, events);
   });
+
 
 const tripPresenter = new TripPresenter(tripMain, eventsContainer, eventsModel, offersModel, descriptionsModel, filterModel, api);
 tripPresenter.init();
