@@ -1,6 +1,5 @@
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration.js';
-import {formatDuration} from './event.js';
 
 dayjs.extend(duration);
 
@@ -39,5 +38,5 @@ export const countDurationByType = (points, types) => {
     result.set(point.type, result.get(point.type) + time);
   }
 
-  return Array.from(result.values()).map((item) => formatDuration(dayjs.duration(item)));
+  return Array.from(result.values());
 };

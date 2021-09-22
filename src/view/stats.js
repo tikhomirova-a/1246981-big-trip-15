@@ -1,7 +1,9 @@
+import dayjs from 'dayjs';
 import SmartView from './smart.js';
 import Chart from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import {getPointTypes, makeItemsUniq, countPointsPriceByType, countPointsByType, countDurationByType} from '../utils/statistics.js';
+import {formatDuration} from '../utils/event.js';
 
 const BAR_HEIGHT = 55;
 
@@ -176,12 +178,12 @@ const renderTimeChart = (timeCtx, events) => {
           color: '#000000',
           anchor: 'end',
           align: 'start',
-          formatter: (val) => `${val}x`,
+          formatter: (val) => formatDuration(dayjs.duration(val)),
         },
       },
       title: {
         display: true,
-        text: 'TIME',
+        text: 'TIME-SPEND',
         fontColor: '#000000',
         fontSize: 23,
         position: 'left',
