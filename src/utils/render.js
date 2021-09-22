@@ -5,7 +5,7 @@ export const render = (container, element, place = Position.BEFOREEND) => {
   if (container instanceof Abstract) {
     container = container.getElement();
   }
-  if (element instanceof Abstract) {
+  if (element instanceof Abstract && place !== Position.AFTEREND) {
     element = element.getElement();
   }
   switch (place) {
@@ -14,6 +14,10 @@ export const render = (container, element, place = Position.BEFOREEND) => {
       break;
     case Position.AFTERBEGIN:
       container.prepend(element);
+      break;
+    case Position.AFTEREND:
+      container.insertAdjacentHTML(Position.AFTEREND, element.getTemplate());
+      break;
   }
 };
 

@@ -6,7 +6,6 @@ import DescriptionsModel from './model/descriptions.js';
 import FilterModel from './model/filter.js';
 import Api from './api.js';
 import {UpdateType} from './utils/const.js';
-import StatsView from './view/stats.js';
 
 const AUTHORIZATION = 'Basic abzLZujAQ8cIM1KT';
 const END_POINT = 'https://15.ecmascript.pages.academy/big-trip';

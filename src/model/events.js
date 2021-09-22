@@ -64,10 +64,6 @@ export default class Events extends AbstractObserver {
         destination: event.destination.name,
         destinationDesc: event.destination.description,
         destinationPhotos: event.destination.pictures,
-        // destinationInfo: new Map().set(event.destination.name, {
-        //   description: event.destination.description,
-        //   photos: event.destination.pictures,
-        // }),
         isFavorite: event['is_favorite'],
       },
     );
@@ -85,7 +81,7 @@ export default class Events extends AbstractObserver {
     for (const photo of event.destinationPhotos) {
       pictures.push({
         src: photo.src,
-        description: photo.altText,
+        description: `${photo.altText} ? ${photo.altText} : ${photo.description}`,
       });
     }
 

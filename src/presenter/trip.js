@@ -9,6 +9,7 @@ import TripSortView from '../view/trip-sort.js';
 import EventListView from '../view/event-list.js';
 import LoadingView from '../view/loading.js';
 import ErrorView from '../view/error.js';
+import StatsView from '../view/stats.js';
 import EventPresenter from '../presenter/event.js';
 import NewEventPresenter from './new-event.js';
 
@@ -35,6 +36,7 @@ export default class Trip {
     this._eventListComponent = new EventListView();
     this._loadingComponent = new LoadingView();
     this._errorComponent = new ErrorView();
+    this._statsComponent = null;
     this._newEventBtn = this._tripMain.querySelector('.trip-main__event-add-btn');
 
     this._handleViewAction = this._handleViewAction.bind(this);
@@ -159,11 +161,13 @@ export default class Trip {
     switch(menuItem) {
       case(MenuItem.TABLE):
         this._menuViewComponent.setMenuItem(MenuItem.TABLE);
+        remove(this._statsComponent);
         this._reinitTrip();
         break;
       case(MenuItem.STATS):
         this._menuViewComponent.setMenuItem(MenuItem.STATS);
         this._destroy();
+        this._renderStats();
         break;
     }
   }
@@ -263,5 +267,14 @@ export default class Trip {
     this._renderSort();
     this._renderEventList();
     this._renderEvents(this._eventListComponent, this._offersModel.getOffers(), this._descriptionsModel.getDescriptions(), this._handleViewAction, this._handleModeChange);
+  }
+
+  _renderStats() {
+    if (this._statsComponent !== null) {
+      remove(this._statsComponent);
+    }
+
+    this._statsComponent = new StatsView(this._eventsModel.getEvents());
+    render(this._eventsContainer, this._statsComponent, Position.AFTEREND);
   }
 }

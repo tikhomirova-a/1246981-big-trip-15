@@ -13,6 +13,7 @@ export const POINT_TYPES = [
 export const Position = {
   BEFOREEND: 'beforeend',
   AFTERBEGIN: 'afterbegin',
+  AFTEREND: 'afterend',
 };
 
 export const Key = {
