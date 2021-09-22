@@ -29,7 +29,7 @@ export default class Trip {
     this._api = api;
 
     this._tripInfoComponent = new TripInfoView();
-    this._tripCostComponent = new TripCostView();
+    this._tripCostComponent = null;
     this._menuViewComponent = new SiteMenuView();
     this._noEventComponent = null;
     this._sortComponent = null;
@@ -162,6 +162,7 @@ export default class Trip {
 
         this._isLoading = false;
         remove(this._loadingComponent);
+        this._renderCost();
         this._renderTrip();
         break;
     }
@@ -199,6 +200,10 @@ export default class Trip {
   }
 
   _renderCost() {
+    if (this._isLoading) {
+      return;
+    }
+    this._tripCostComponent = new TripCostView(this._eventsModel.getEvents());
     render(this._tripInfoComponent, this._tripCostComponent);
   }
 
