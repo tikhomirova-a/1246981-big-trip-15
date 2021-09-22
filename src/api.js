@@ -5,6 +5,8 @@ import OffersModel from './model/offers.js';
 const Method = {
   GET: 'GET',
   PUT: 'PUT',
+  POST: 'POST',
+  DELETE: 'DELETE',
 };
 
 export default class Api {
@@ -29,6 +31,24 @@ export default class Api {
     return this._load({url: 'offers'})
       .then(Api.toJSON)
       .then(OffersModel.adaptToClient);
+  }
+
+  addEvent(event) {
+    return this._load({
+      url: 'points',
+      method: Method.POST,
+      body: JSON.stringify(EventsModel.adaptToServer(event)),
+      headers: new Headers({'Content-Type': 'application/json'}),
+    })
+      .then(Api.toJSON)
+      .then(EventsModel.adaptToClient);
+  }
+
+  deleteEvent(event) {
+    return this._load({
+      url: `points/${event.id}`,
+      method: Method.DELETE,
+    });
   }
 
   updateEvent(event) {

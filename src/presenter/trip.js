@@ -1,6 +1,6 @@
 import {render, remove} from '../utils/render.js';
 import {sortByDay, sortByPrice, sortByTime, filter} from '../utils/event.js';
-import {Position, SortType, UserAction, UpdateType, FilterType, MenuItem} from '../utils/const.js';
+import {Position, SortType, UserAction, UpdateType, FilterType, MenuItem, State} from '../utils/const.js';
 import TripInfoView from '../view/trip-info.js';
 import TripCostView from '../view/trip-cost.js';
 import SiteMenuView from '../view/site-menu.js';
@@ -103,15 +103,37 @@ export default class Trip {
   _handleViewAction(actionType, updateType, updatedEvent) {
     switch (actionType) {
       case UserAction.UPDATE_EVENT:
-        this._api.updateEvent(updatedEvent).then((response) => {
-          this._eventsModel.updateEvent(updateType, response);
-        });
+        this._eventPresenter.get(updatedEvent.id).setViewState(State.SAVING);
+
+        this._api.updateEvent(updatedEvent)
+          .then((response) => {
+            this._eventsModel.updateEvent(updateType, response);
+          })
+          .catch(() => {
+            this._eventPresenter.get(updatedEvent.id).setViewState(State.ABORTING);
+          });
         break;
       case UserAction.ADD_EVENT:
-        this._eventsModel.addEvent(updateType, updatedEvent);
+        this._newEventPresenter.setSaving();
+
+        this._api.addEvent(updatedEvent)
+          .then((response) => {
+            this._eventsModel.addEvent(updateType, response);
+          })
+          .catch(() => {
+            this._newEventPresenter.setAborting();
+          });
         break;
       case UserAction.DELETE_EVENT:
-        this._eventsModel.deleteEvent(updateType, updatedEvent);
+        this._eventPresenter.get(updatedEvent.id).setViewState(State.DELETING);
+
+        this._api.deleteEvent(updatedEvent)
+          .then(() => {
+            this._eventsModel.deleteEvent(updateType, updatedEvent);
+          })
+          .catch(() => {
+            this._eventPresenter.get(updatedEvent.id).setViewState(State.ABORTING);
+          });
         break;
     }
   }

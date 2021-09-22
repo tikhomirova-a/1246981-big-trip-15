@@ -1,7 +1,7 @@
 import EventView from '../view/event.js';
 import EditEventView from '../view/edit-event.js';
 import {render, replace, remove} from '../utils/render.js';
-import {Key, UserAction, UpdateType} from '../utils/const.js';
+import {Key, UserAction, UpdateType, State} from '../utils/const.js';
 import {isDayEqual, isDurationEqual, isPriceEqual} from '../utils/event.js';
 
 const Mode = {
@@ -35,7 +35,7 @@ export default class Event {
     const prevEditEventComponent = this._editEventComponent;
 
     this._eventComponent = new EventView(event);
-    this._editEventComponent = new EditEventView(this._offers, this._descriptions, event);
+    this._editEventComponent = new EditEventView(this._offers, this._descriptions, {isNew: false}, event);
 
     this._eventComponent.setRollUpBtnClickHandler(this._rollUpBtnClickHandler);
     this._eventComponent.setFavoriteBtnClickHandler(this._favoriteBtnClickHandler);
@@ -53,7 +53,8 @@ export default class Event {
     }
 
     if (this._mode === Mode.EDITING) {
-      replace(this._editEventComponent, prevEditEventComponent);
+      replace(this._eventComponent, prevEditEventComponent);
+      this._mode = Mode.DEFAULT;
     }
 
     remove(prevEventComponent);
@@ -68,6 +69,39 @@ export default class Event {
   resetMode() {
     if (this._mode !== Mode.DEFAULT) {
       this._replaceFormToEvent();
+    }
+  }
+
+  setViewState(state) {
+    if (this._mode === Mode.DEFAULT) {
+      return;
+    }
+
+    const resetFormState = () => {
+      this._editEventComponent.updateData({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false,
+      });
+    };
+
+    switch (state) {
+      case State.SAVING:
+        this._editEventComponent.updateData({
+          isDisabled: true,
+          isSaving: true,
+        });
+        break;
+      case State.DELETING:
+        this._editEventComponent.updateData({
+          isDisabled: true,
+          isDeleting: true,
+        });
+        break;
+      case State.ABORTING:
+        this._editEventComponent.shake(resetFormState);
+        this._eventComponent.shake(resetFormState);
+        break;
     }
   }
 
@@ -105,7 +139,6 @@ export default class Event {
       UserAction.UPDATE_EVENT,
       isMinorUpdate ? UpdateType.MINOR : UpdateType.PATCH,
       updatedEvent);
-    this._replaceFormToEvent();
   }
 
   _hideFormBtnClickHandler() {

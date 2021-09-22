@@ -16,7 +16,21 @@ const BLANK_EVENT = {
   isNew: true,
 };
 
-const createEditOffersTemplate = (allOffers, checkedOffers) => {
+const ButtonText = {
+  DELETE: {
+    TYPE: 'DELETE',
+    PROCESS: 'Deleting...',
+    DEFAULT: 'Delete',
+  },
+
+  CANCEL: {
+    TYPE: 'CANCEL',
+    PROCESS: 'Cancel',
+    DEFAULT: 'Cancel',
+  },
+};
+
+const createEditOffersTemplate = (allOffers, checkedOffers, isDisabled) => {
   const checkedTitles = checkedOffers.map((offer) => offer.title);
   const offerItems = [];
   let count = 0;
@@ -26,7 +40,7 @@ const createEditOffersTemplate = (allOffers, checkedOffers) => {
     const titleWords = title.split(' ');
     offerItems.push(`<div class="event__offer-selector">
         <input class="event__offer-checkbox  visually-hidden" id="event-offer-${titleWords[titleWords.length - 1]}-${count}"
-        type="checkbox" name="event-offer-${titleWords[titleWords.length - 1]}" ${checkedTitles.includes(title) ? 'checked' : ''}>
+        type="checkbox" name="event-offer-${titleWords[titleWords.length - 1]}" ${checkedTitles.includes(title) ? 'checked' : ''} ${isDisabled ? 'disabled' : ''}>
           <label class="event__offer-label" for="event-offer-${titleWords[titleWords.length - 1]}-${count}">
             <span class="event__offer-title">${title}</span>
             &plus;&euro;&nbsp;
@@ -61,7 +75,10 @@ const createDescriptionTemplate = (description, photos) => {
                   </section>`;
 };
 
-const createEditEventTemplate = (data, allOffers, descriptions, cities) => {
+const renderButton = (text, isDeleting) => `<button class="event__reset-btn" type="reset">${isDeleting ? ButtonText[text].PROCESS : ButtonText[text].DEFAULT}</button>`;
+
+
+const createEditEventTemplate = (data, allOffers, descriptions, cities, isNew) => {
   const {
     basePrice,
     dateFrom,
@@ -70,15 +87,16 @@ const createEditEventTemplate = (data, allOffers, descriptions, cities) => {
     offers,
     type,
     hasDescription,
+    isDisabled,
+    isSaving,
+    isDeleting,
   } = data;
 
-  const editOffersTemplate = createEditOffersTemplate(allOffers.get(type), offers);
+  const editOffersTemplate = createEditOffersTemplate(allOffers.get(type), offers, isDisabled);
 
   const descriptionTemplate = hasDescription ? createDescriptionTemplate(descriptions.get(destination).description, descriptions.get(destination).photos) : '';
 
   const isSubmitDisabled = destination === null || destination === '';
-
-  const isEventNew = data.isNew;
 
   return `<li class="trip-events__item">
               <form class="event event--edit" action="#" method="post">
@@ -88,7 +106,7 @@ const createEditEventTemplate = (data, allOffers, descriptions, cities) => {
                       <span class="visually-hidden">Choose event type</span>
                       <img class="event__type-icon" width="17" height="17" src="img/icons/${type}.png" alt="Event type icon">
                     </label>
-                    <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
+                    <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox" ${isDisabled ? 'disabled' : ''}>
 
                     <div class="event__type-list">
                       <fieldset class="event__type-group">
@@ -146,7 +164,8 @@ const createEditEventTemplate = (data, allOffers, descriptions, cities) => {
                     <label class="event__label  event__type-output" for="event-destination-1">
                       ${type}
                     </label>
-                    <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination !== null ? destination : ''}" list="destination-list-1">
+                    <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination !== null ? destination : ''}"
+                    list="destination-list-1" ${isDisabled ? 'disabled' : ''} >
                     <datalist id="destination-list-1">
                     ${cities.map((city) => `<option value="${city}"></option>`).join('')}
                     </datalist>
@@ -154,10 +173,12 @@ const createEditEventTemplate = (data, allOffers, descriptions, cities) => {
 
                   <div class="event__field-group  event__field-group--time">
                     <label class="visually-hidden" for="event-start-time-1">From</label>
-                    <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${dayjs(dateFrom).format('DD/MM/YY HH:MM')}">
+                    <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${dayjs(dateFrom).format('DD/MM/YY HH:MM')}"
+                    ${isDisabled ? 'disabled' : ''}>
                     &mdash;
                     <label class="visually-hidden" for="event-end-time-1">To</label>
-                    <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${dayjs(dateTo).format('DD/MM/YY HH:MM')}">
+                    <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${dayjs(dateTo).format('DD/MM/YY HH:MM')}"
+                    ${isDisabled ? 'disabled' : ''}>
                   </div>
 
                   <div class="event__field-group  event__field-group--price">
@@ -165,12 +186,15 @@ const createEditEventTemplate = (data, allOffers, descriptions, cities) => {
                       <span class="visually-hidden">Price</span>
                       &euro;
                     </label>
-                    <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${basePrice}">
+                    <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${basePrice}" ${isDisabled ? 'disabled' : ''}>
                   </div>
 
-                  <button class="event__save-btn  btn  btn--blue" type="submit" ${isSubmitDisabled ? 'disabled' : ''}>Save</button>
-                  <button class="event__reset-btn" type="reset">${isEventNew ? 'Cancel' : 'Delete'}</button>
-                  ${isEventNew ? '' : `<button class="event__rollup-btn" type="button">
+                  <button class="event__save-btn  btn  btn--blue" type="submit" ${isSubmitDisabled ? 'disabled' : ''}>
+                  ${isSaving ? 'Saving...' : 'Save'}</button>
+
+                  ${isNew ? renderButton(ButtonText.CANCEL.TYPE, isDeleting) : renderButton(ButtonText.DELETE.TYPE, isDeleting)}
+
+                  ${isNew ? '' : `<button class="event__rollup-btn" type="button">
                     <span class="visually-hidden">Open event</span>
                   </button>`}
                 </header>
@@ -184,7 +208,7 @@ const createEditEventTemplate = (data, allOffers, descriptions, cities) => {
 };
 
 export default class EditEvent extends SmartView {
-  constructor(allOffers, descriptions, event = BLANK_EVENT) {
+  constructor(allOffers, descriptions, {isNew = false} = {}, event = BLANK_EVENT) {
     super();
     this._allOffers = allOffers;
     this._descriptions = descriptions;
@@ -192,6 +216,7 @@ export default class EditEvent extends SmartView {
     this._dateFromPicker = null;
     this._dateToPicker = null;
     this._cities = getCities(descriptions);
+    this._isNew = isNew;
 
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
     this._hideFormBtnClickHandler = this._hideFormBtnClickHandler.bind(this);
@@ -207,7 +232,7 @@ export default class EditEvent extends SmartView {
   }
 
   getTemplate() {
-    return createEditEventTemplate(this._data, this._allOffers, this._descriptions, this._cities);
+    return createEditEventTemplate(this._data, this._allOffers, this._descriptions, this._cities, this._isNew);
   }
 
   removeElement() {
@@ -387,6 +412,9 @@ export default class EditEvent extends SmartView {
       event,
       {
         hasDescription: Boolean(descriptions.get(event.destination)),
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false,
       },
     );
   }
@@ -395,10 +423,9 @@ export default class EditEvent extends SmartView {
     data = Object.assign({}, data);
 
     delete data.hasDescription;
-
-    if (data.isNew) {
-      delete data.isNew;
-    }
+    delete data.isDisabled;
+    delete data.isSaving;
+    delete data.isDeleting;
 
     return data;
   }

@@ -50,3 +50,9 @@ export const MenuItem = {
   TABLE: 'table',
   STATS: 'stats',
 };
+
+export const State = {
+  SAVING: 'SAVING',
+  DELETING: 'DELETING',
+  ABORTING: 'ABORTING',
+};
