@@ -30,6 +30,8 @@ const ButtonText = {
   },
 };
 
+const WORDS_AMOUNT = 2;
+
 const createEditOffersTemplate = (allOffers, checkedOffers, isDisabled) => {
   const checkedTitles = checkedOffers.map((offer) => offer.title);
   const offerItems = [];
@@ -37,11 +39,11 @@ const createEditOffersTemplate = (allOffers, checkedOffers, isDisabled) => {
 
   for (const offer of allOffers) {
     const {title, price} = offer;
-    const titleWords = title.split(' ');
+    const titleWords = title.split(' ').splice(-WORDS_AMOUNT, WORDS_AMOUNT).join('-').toLowerCase();
     offerItems.push(`<div class="event__offer-selector">
-        <input class="event__offer-checkbox  visually-hidden" id="event-offer-${titleWords[titleWords.length - 1]}-${count}"
-        type="checkbox" name="event-offer-${titleWords[titleWords.length - 1]}" ${checkedTitles.includes(title) ? 'checked' : ''} ${isDisabled ? 'disabled' : ''}>
-          <label class="event__offer-label" for="event-offer-${titleWords[titleWords.length - 1]}-${count}">
+        <input class="event__offer-checkbox  visually-hidden" id="event-offer-${titleWords}-${count}"
+        type="checkbox" name="event-offer-${titleWords}" ${checkedTitles.includes(title) ? 'checked' : ''} ${isDisabled ? 'disabled' : ''}>
+          <label class="event__offer-label" for="event-offer-${titleWords}-${count}">
             <span class="event__offer-title">${title}</span>
             &plus;&euro;&nbsp;
             <span class="event__offer-price">${price}</span>
@@ -353,8 +355,8 @@ export default class EditEvent extends SmartView {
       let newOffers = [...this._data.offers];
 
       const targetOffer = availableOffers.find((offer) => {
-        const titleWords = offer.title.split(' ');
-        return `event-offer-${titleWords[titleWords.length - 1]}` === evt.target.name;
+        const titleWords = offer.title.split(' ').splice(-WORDS_AMOUNT, WORDS_AMOUNT).join('-').toLowerCase();
+        return `event-offer-${titleWords}` === evt.target.name;
       });
 
       if (evt.target.checked) {
