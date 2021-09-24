@@ -20,9 +20,9 @@ const descriptionsModel = new DescriptionsModel();
 
 const filterModel = new FilterModel();
 
-const tripMain = document.querySelector('.trip-main');
-const eventsContainer = document.querySelector('.trip-events');
-const filtersContainer = tripMain.querySelector('.trip-controls__filters');
+const tripMainElement = document.querySelector('.trip-main');
+const eventsContainerElement = document.querySelector('.trip-events');
+const filtersContainerElement = tripMainElement.querySelector('.trip-controls__filters');
 
 Promise.all([
   api.getOffers().catch(() => []),
@@ -36,9 +36,9 @@ Promise.all([
   });
 
 
-const tripPresenter = new TripPresenter(tripMain, eventsContainer, eventsModel, offersModel, descriptionsModel, filterModel, api);
+const tripPresenter = new TripPresenter(tripMainElement, eventsContainerElement, eventsModel, offersModel, descriptionsModel, filterModel, api);
 tripPresenter.init();
-new FilterPresenter(filtersContainer, filterModel, eventsModel).init();
+new FilterPresenter(filtersContainerElement, filterModel, eventsModel).init();
 
 document.querySelector('.trip-main__event-add-btn').addEventListener('click', (evt) => {
   tripPresenter.createEvent(evt);
