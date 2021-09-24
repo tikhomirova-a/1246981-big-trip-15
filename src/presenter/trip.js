@@ -20,7 +20,7 @@ export default class Trip {
     this._offersModel = offersModel;
     this._descriptionsModel = descriptionsModel;
     this._filterModel = filterModel;
-    this._tripNav = this._tripMain.querySelector('.trip-controls__navigation');
+    this._tripNavElement = this._tripMain.querySelector('.trip-controls__navigation');
     this._eventsContainer = eventsContainer;
     this._eventPresenter = new Map();
     this._currentSortType = SortType.DAY;
@@ -37,7 +37,7 @@ export default class Trip {
     this._loadingComponent = new LoadingView();
     this._errorComponent = new ErrorView();
     this._statsComponent = null;
-    this._newEventBtn = this._tripMain.querySelector('.trip-main__event-add-btn');
+    this._newEventBtnElement = this._tripMain.querySelector('.trip-main__event-add-btn');
 
     this._handleViewAction = this._handleViewAction.bind(this);
     this._handleModelEvent = this._handleModelEvent.bind(this);
@@ -76,7 +76,7 @@ export default class Trip {
     this._destroy();
     this._filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
     this._reinitTrip();
-    this._newEventBtn.disabled = true;
+    this._newEventBtnElement.disabled = true;
     this._menuViewComponent.setMenuItem(MenuItem.TABLE);
 
     if (!this._newEventPresenter) {
@@ -176,7 +176,7 @@ export default class Trip {
   }
 
   _handleNewEventFormClose() {
-    this._newEventBtn.disabled = false;
+    this._newEventBtnElement.disabled = false;
     this._menuViewComponent.setMenuItem(MenuItem.TABLE);
   }
 
@@ -209,7 +209,7 @@ export default class Trip {
 
   _renderMenu() {
     this._menuViewComponent.setMenuClickHandler(this._handleSiteMenuClick);
-    render(this._tripNav, this._menuViewComponent);
+    render(this._tripNavElement, this._menuViewComponent);
   }
 
   _renderNoEvent() {
