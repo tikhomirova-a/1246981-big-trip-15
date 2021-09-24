@@ -258,10 +258,10 @@ export default class Trip {
 
   _renderEvents(eventList, offers, descriptions, changeData, changeMode) {
     const events = this._getEvents();
-    for (let i = 0; i < events.length; i++) {
+    for (const event of events) {
       const eventPresenter = new EventPresenter(eventList, offers, descriptions, changeData, changeMode);
-      eventPresenter.init(events[i]);
-      this._eventPresenter.set(events[i].id, eventPresenter);
+      eventPresenter.init(event);
+      this._eventPresenter.set(event.id, eventPresenter);
     }
   }
 
