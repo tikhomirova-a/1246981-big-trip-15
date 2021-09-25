@@ -2,9 +2,10 @@ import AbstractView from './abstract.js';
 
 const getTotalCost = (events) => {
   let counter = 0;
+  const reducer = (accumulator, currentVal) => accumulator + currentVal.price;
 
   for (const event of events) {
-    counter += event.basePrice;
+    counter += event.basePrice + event.offers.reduce(reducer, 0);
   }
   return counter;
 };
