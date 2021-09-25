@@ -28,7 +28,7 @@ export default class Trip {
     this._isLoading = true;
     this._api = api;
 
-    this._tripInfoComponent = new TripInfoView();
+    this._tripInfoComponent = null;
     this._tripCostComponent = null;
     this._menuViewComponent = new SiteMenuView();
     this._noEventComponent = null;
@@ -76,6 +76,10 @@ export default class Trip {
     this._destroy();
     this._filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
     this._reinitTrip();
+    if (this._eventsModel.getEvents().length === 0) {
+      remove(this._noEventComponent);
+      this._renderEventList();
+    }
     this._newEventBtnElement.disabled = true;
     this._menuViewComponent.setMenuItem(MenuItem.TABLE);
 
@@ -155,13 +159,16 @@ export default class Trip {
         if (!this._offersModel.getOffers() || this._offersModel.getOffers().size === 0) {
           remove(this._loadingComponent);
           this._renderError();
+          this._newEventBtnElement.disabled = true;
           return;
         } else {
           remove(this._errorComponent);
+          this._newEventBtnElement.disabled = false;
         }
 
         this._isLoading = false;
         remove(this._loadingComponent);
+        this._renderTripInfo();
         this._renderCost();
         this._renderTrip();
         break;
@@ -196,6 +203,7 @@ export default class Trip {
   }
 
   _renderTripInfo() {
+    this._tripInfoComponent = new TripInfoView(this._getEvents());
     render(this._tripMain, this._tripInfoComponent, Position.AFTERBEGIN);
   }
 

@@ -11,7 +11,7 @@ const getTotalCost = (events) => {
 };
 
 const createTripCostTemplate = (events) => {
-  const cost = getTotalCost(events);
+  const cost = events.length !== 0 ? getTotalCost(events) : 0;
 
   return `<p class="trip-info__cost">
               Total: &euro;&nbsp;<span class="trip-info__cost-value">${cost}</span>
