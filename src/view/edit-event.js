@@ -13,7 +13,6 @@ const BLANK_EVENT = {
   isFavorite: false,
   offers: [],
   type: POINT_TYPES[0],
-  isNew: true,
 };
 
 const ButtonText = {
@@ -343,11 +342,13 @@ export default class EditEvent extends SmartView {
         evt.target.value = '';
       }
 
+      const descriptionMap = this._descriptions.get(evt.target.value);
+
       this.updateData({
         destination: evt.target.value,
-        hasDescription: Boolean(this._descriptions.get(evt.target.value)),
-        destinationDesc: this._descriptions.get(evt.target.value).description,
-        destinationPhotos: this._descriptions.get(evt.target.value).photos,
+        hasDescription: Boolean(descriptionMap),
+        destinationDesc: descriptionMap ? descriptionMap.description : null,
+        destinationPhotos: descriptionMap ? descriptionMap.photos : null,
       });
 
     } else if (evt.target.classList.contains('event__offer-checkbox')) {
@@ -443,7 +444,7 @@ export default class EditEvent extends SmartView {
     this.setFormSubmitHandler(this._callback.formSubmit);
     this.setDeleteBtnClickHandler(this._callback.deleteClick);
 
-    if (!this._data.isNew) {
+    if (!this._isNew) {
       this.setHideFormBtnClickHandler(this._callback.hideBtnClick);
     }
   }
